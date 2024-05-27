@@ -16,7 +16,13 @@ export default defineConfig({
     }),
     AutoImport({
       resolvers: [ElementPlusResolver()],
-      imports: ["vue", "@vueuse/core", { "@/const/index": ["Const"] }, { "@/utils/index": ["Utils"] }]
+      imports: [
+        "vue",
+        "@vueuse/core",
+        { "@/const/index": ["Const"] },
+        { "@/utils/index": ["Utils"] },
+        { "@/database/index": ["Database"] }
+      ]
     }),
     Components({
       dirs: ["./src/components/**", "./src/fragments/**"]

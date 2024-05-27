@@ -11,11 +11,6 @@ const router = createRouter({
       path: "/comments",
       name: "Comments",
       component: () => import("@/views/Comments.vue")
-    },
-    {
-      path: "/charts",
-      name: "Charts",
-      component: () => import("@/views/Charts.vue")
     }
   ],
   history: createWebHashHistory()

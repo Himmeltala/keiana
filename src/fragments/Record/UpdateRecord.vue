@@ -2,7 +2,6 @@
 import { PropType } from "vue";
 import { Coin } from "@element-plus/icons-vue";
 import type { FormInstance, FormRules } from "element-plus";
-import { DataBase } from "@/database";
 
 const props = defineProps({
   database: {
@@ -40,12 +39,11 @@ function confirmSubmit() {
     formInst.value,
     async () => {
       props.data.items[props.currM].budget = Number(formData.value.budget);
-      await DataBase.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY);
+      await Database.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY);
       dialog.value = !dialog.value;
-      ElMessage.success("更新成功");
     },
     () => {
-      ElMessage.error("更新失败，检查输入的值是否正确");
+      ElMessage.error("检查输入的值是否正确");
     }
   );
 }

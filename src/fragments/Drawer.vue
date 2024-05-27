@@ -30,12 +30,6 @@ const importJson: UploadProps["onChange"] = async file => {
     </el-upload>
     <el-button plain round type="warning" @click="$router.push('/comments')"> 管理备注</el-button>
   </div>
-  <div class="mb-5">
-    <div class="text-1.2rem mb-5">其他</div>
-    <div>
-      <el-button plain round @click="$router.push('/charts')">图表统计</el-button>
-    </div>
-  </div>
 </template>
 
 <style lang="scss" scoped></style>

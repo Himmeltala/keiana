@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { ChatDotRound, Coin } from "@element-plus/icons-vue";
 import type { FormInstance, FormRules } from "element-plus";
-import { DataBase } from "@/database";
 import { PropType } from "vue";
 
 const props = defineProps({
@@ -29,7 +28,6 @@ const props = defineProps({
     required: true
   }
 });
-
 
 const isShowDialog = ref(false);
 const formInst = ref<FormInstance>();
@@ -70,7 +68,7 @@ function confirmSubmit() {
     formInst.value,
     async () => {
       props.data.items[props.currM].items[props.index] = formData.value;
-      await DataBase.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY);
+      await Database.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY);
       isShowDialog.value = !isShowDialog.value;
     },
     () => {

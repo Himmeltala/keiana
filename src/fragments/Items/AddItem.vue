@@ -2,7 +2,6 @@
 import { PropType } from "vue";
 import { ChatDotRound, Coin } from "@element-plus/icons-vue";
 import type { FormInstance, FormRules } from "element-plus";
-import { DataBase } from "@/database";
 
 const props = defineProps({
   database: {
@@ -25,8 +24,7 @@ const dialog = ref(false);
 const formData = ref<IItem>({
   cost: 100,
   text: "",
-  type: "支",
-  sameat: []
+  type: "支"
 });
 const formInst = ref<FormInstance>();
 const formRule = ref<FormRules>({
@@ -36,15 +34,21 @@ const formRule = ref<FormRules>({
     { min: 1, max: 50, message: "长度在1~50个字符之间", trigger: "blur" }
   ]
 });
+const comments = ref<IComments[]>([]);
+
+onMounted(() => {
+  Database.get<{ items: IComments[] }>(props.database, Const.COMMENTS, "0").then(r => {
+    comments.value = r.items;
+  });
+});
 
 function confirmSubmit() {
   Utils.Forms.formValidator(
     formInst.value,
     async () => {
-      props.data.items[props.currM].items.push(formData.value);
-      await DataBase.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY);
+      props.data.items[props.currM].items.push({ ...formData.value });
+      await Database.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY);
       dialog.value = !dialog.value;
-      ElMessage.success("添加收支项成功");
     },
     () => {
       ElMessage.error("检查输入的值是否正确");
@@ -53,10 +57,8 @@ function confirmSubmit() {
 }
 
 const findFromComments = (target: any, callback: any) => {
-  // const remark = target
-  //   ? storage.value.comments.filter(createFilter(target))
-  //   : storage.value.comments;
-  // callback(remark);
+  const comment = target ? comments.value.filter(createFilter(target)) : comments.value;
+  callback(comment);
 };
 
 const createFilter = (target: any) => {
@@ -65,15 +67,14 @@ const createFilter = (target: any) => {
   };
 };
 
-function onAutocompleteSelected(remark: IComments) {
-  formData.value.text = remark.value;
-  formData.value.cost = remark.cost;
-  formData.value.type = remark.type;
+function onAutocompleteSelected(comment: IComments) {
+  formData.value.text = comment.value;
+  formData.value.cost = comment.cost;
+  formData.value.type = comment.type;
 }
 
 function afterOpenedDialog() {
   formInst.value.resetFields();
-  formData.value.sameat = [props.currM];
 }
 </script>
 
@@ -113,14 +114,6 @@ function afterOpenedDialog() {
           <el-radio-group v-model="formData.type">
             <el-radio v-for="item in ['支', '收']" :label="item" :value="item"></el-radio>
           </el-radio-group>
-        </el-form-item>
-        <el-form-item label="连同" prop="sameat">
-          <el-checkbox-group v-model="formData.sameat">
-            <template v-for="i in Object.keys(data.items)" v-if="data?.items">
-              <el-checkbox v-if="i === currM" :label="i + '月'" :value="i" checked disabled />
-              <el-checkbox v-else :label="i + '月'" :value="i" />
-            </template>
-          </el-checkbox-group>
         </el-form-item>
         <el-form-item class="mt-10">
           <div class="f-c-c w-100%">

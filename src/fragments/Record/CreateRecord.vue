@@ -2,7 +2,6 @@
 import { PropType } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
 import { Coin } from "@element-plus/icons-vue";
-import { DataBase } from "@/database";
 
 const props = defineProps({
   database: {
@@ -46,11 +45,12 @@ function confirmSubmit() {
 
       if (index == -1) {
         props.data.items[currM] = { surplus: 0, budget: formData.value.budget, items: [] };
-        DataBase.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY).then(() => {
-          ElMessage.success("创建记录成功");
-          dialog.value = !dialog.value;
-          emits("onCreated");
-        });
+        Database.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY).then(
+          () => {
+            dialog.value = !dialog.value;
+            emits("onCreated");
+          }
+        );
       } else {
         ElMessage.error("已有该记录");
       }

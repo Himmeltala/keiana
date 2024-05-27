@@ -1,14 +1,11 @@
 <script lang="ts" setup>
-import { DataBase } from "@/database";
-import { Utils } from "@/utils";
-
-const database = await DataBase.create();
-const datetime = await DataBase.get<{ Y: string; M: string }>(database, Const.VIEW_DATE, "0");
+const database = await Database.create();
+const datetime = await Database.get<{ Y: string; M: string }>(database, Const.VIEW_DATE, "0");
 const currY = ref(datetime.Y);
 const currM = ref(datetime.M);
-const data = ref(await DataBase.get<IRecord>(database, Const.RECORD, currY.value));
+const data = ref(await Database.get<IRecord>(database, Const.RECORD, currY.value));
 const MList = ref(Object.keys(data.value.items));
-const YList = ref<any[]>(await DataBase.keys(database, Const.RECORD));
+const YList = ref<any[]>(await Database.keys(database, Const.RECORD));
 
 const isDrawer = ref(false);
 
@@ -16,9 +13,11 @@ function calcCurrMBalance() {
   if (!data?.value.items[currM.value]) return 0;
 
   let totalCost = 0;
-  data.value.items[currM.value].items.forEach((item) => totalCost += Number(item.cost));
-  data.value.items[currM.value].surplus = (data.value.items[currM.value].budget - totalCost);
-  DataBase.put(database, Const.RECORD, Utils.Objects.raw(data.value), currY.value).then(() => calcRisingRate());
+  data.value.items[currM.value].items.forEach(item => (totalCost += Number(item.cost)));
+  data.value.items[currM.value].surplus = data.value.items[currM.value].budget - totalCost;
+  Database.put(database, Const.RECORD, Utils.Objects.raw(data.value), currY.value).then(() =>
+    calcRisingRate()
+  );
 
   return data.value.items[currM.value].surplus;
 }
@@ -28,19 +27,22 @@ const risingRate = ref(0);
 function calcRisingRate() {
   if (!data?.value.items[currM.value]) return 0;
 
-  let lastMCost = 0, currMCost = 0;
+  let lastMCost = 0,
+    currMCost = 0;
   const keys = MList.value.sort((a, b) => Number(a) - Number(b));
   const index = keys.findIndex(item => item === currM.value);
   const isFirst = index === 0;
 
   if (index !== -1) {
     if (!isFirst) {
-      data.value.items[keys[index - 1]].items.forEach(item => lastMCost += item.cost);
-      data.value.items[keys[index]].items.forEach(item => currMCost += item.cost);
+      data.value.items[keys[index - 1]].items.forEach(item => (lastMCost += item.cost));
+      data.value.items[keys[index]].items.forEach(item => (currMCost += item.cost));
     }
 
     const hasNonZeroLastCost = lastMCost !== 0;
-    risingRate.value = hasNonZeroLastCost ? Math.round(((currMCost - lastMCost) / lastMCost * 100) * 10) / 10 : 0;
+    risingRate.value = hasNonZeroLastCost
+      ? Math.round(((currMCost - lastMCost) / lastMCost) * 100 * 10) / 10
+      : 0;
   } else {
     risingRate.value = 0;
   }
@@ -52,22 +54,21 @@ function calcOutcome() {
   if (!data?.value.items[currM.value]) return 0;
 
   let totalCost = 0;
-  data.value.items[currM.value].items.forEach((item) => totalCost += Number(item.cost));
+  data.value.items[currM.value].items.forEach(item => (totalCost += Number(item.cost)));
 
   return totalCost;
 }
 
 async function onCurrYChange() {
-  data.value = await DataBase.get(database, Const.RECORD, currY.value);
+  data.value = await Database.get(database, Const.RECORD, currY.value);
   MList.value = Object.keys(data.value.items);
   currM.value = MList.value[0];
 }
 
-function onCurrMChange() {
-}
+function onCurrMChange() {}
 
 async function onCreatedR() {
-  data.value = await DataBase.get(database, Const.RECORD, currY.value);
+  data.value = await Database.get(database, Const.RECORD, currY.value);
   MList.value = Object.keys(data.value.items);
 }
 
@@ -75,9 +76,9 @@ async function onDeletedR() {
   const nextM = Utils.deleteAndReturnNext(MList.value, currM.value);
   if (nextM) {
     delete data.value.items[currM.value];
-    await DataBase.put(database, Const.RECORD, Utils.Objects.raw(data.value), currY.value);
+    await Database.put(database, Const.RECORD, Utils.Objects.raw(data.value), currY.value);
     currM.value = String(nextM);
-    await DataBase.put(database, Const.VIEW_DATE, { id: "0", Y: currY.value, M: currM.value }, "0");
+    await Database.put(database, Const.VIEW_DATE, { id: "0", Y: currY.value, M: currM.value }, "0");
   } else {
     ElMessage.error("至少保留一条记录");
   }
@@ -151,7 +152,9 @@ async function onDeletedR() {
             <span v-show="data?.items[currM]?.surplus >= 0" class="text-green">
               {{ calcCurrMBalance() }}
             </span>
-            <span v-show="data?.items[currM]?.surplus < 0" class="text-red">{{ calcCurrMBalance() }}</span>
+            <span v-show="data?.items[currM]?.surplus < 0" class="text-red">{{
+              calcCurrMBalance()
+            }}</span>
           </div>
         </div>
         <div class="f-c-e text-text-regular text-0.8rem">
@@ -159,7 +162,7 @@ async function onDeletedR() {
             <div class="i-tabler-map-south text-text-secondary mr-1"></div>
             <span class="text-text-secondary mr-1">支出</span>
             <span>
-               {{ calcOutcome() }}
+              {{ calcOutcome() }}
             </span>
           </div>
           <span class="text-text-secondary mr-1">，增长</span>

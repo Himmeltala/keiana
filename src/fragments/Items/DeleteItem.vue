@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { PropType } from "vue";
-import { DataBase } from "@/database";
 
 const props = defineProps({
   database: {
@@ -31,14 +30,16 @@ const isShowDialog = ref(false);
 
 async function confirmSubmit() {
   props.data.items[props.currM].items.splice(props.index, 1);
-  await DataBase.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY);
+  await Database.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY);
   isShowDialog.value = !isShowDialog.value;
 }
 </script>
 
 <template>
   <div>
-    <el-button size="small" text type="danger" @click="isShowDialog = !isShowDialog">删除收支</el-button>
+    <el-button size="small" text type="danger" @click="isShowDialog = !isShowDialog"
+      >删除收支</el-button
+    >
     <el-dialog v-model="isShowDialog" append-to-body title="删除收支提示" width="90%">
       <el-form ref="formInst" hide-required-asterisk label-position="left" status-icon>
         <el-form-item label="备注" prop="text">

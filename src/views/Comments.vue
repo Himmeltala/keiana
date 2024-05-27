@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import { ChatDotRound, Coin } from "@element-plus/icons-vue";
 import type { FormInstance, FormRules } from "element-plus";
-import { DataBase } from "@/database";
 
-const database = await DataBase.create();
-const data = ref(await DataBase.get<IComments[]>(database, Const.COMMENTS));
+const database = await Database.create();
+const data = ref(await Database.get<{ items: IComments[] }>(database, Const.COMMENTS, "0"));
 const editCommentsRow = ref<IComments>();
 const delCommentsDialog = ref(false);
 const commentsEditType = ref<"新增" | "更新">("新增");
@@ -41,75 +40,61 @@ function addComments() {
   Utils.Forms.formValidator(
     formInst.value,
     () => {
-      const hasTextInComments = data.value?.filter(createFilter(formData.value.text));
+      const hasTextInComments = data.value.items.filter(createFilter(formData.value.text));
 
       if (!hasTextInComments || (hasTextInComments.length == 0 && formData.value.text)) {
-        if (!hasTextInComments) {
-          // data.value["comments"] = [
-          //   {
-          //     value: formData.value.text,
-          //     cost: formData.value.cost,
-          //     type: formData.value.type
-          //   }
-          // ];
-        } else {
-          // storage.value.comments.push({
-          //   value: formData.value.text,
-          //   cost: formData.value.cost,
-          //   type: formData.value.type
-          // });
-        }
-        ElMessage.success("添加成功！");
+        data.value.items.push({
+          value: formData.value.text,
+          cost: formData.value.cost,
+          type: formData.value.type
+        });
+        Database.put(database, Const.COMMENTS, Utils.Objects.raw(data.value), "0");
         commentsEditDialog.value = !commentsEditDialog.value;
       } else {
         ElMessage.error("重复添加！");
       }
     },
     () => {
-      ElMessage.error("检查值是否正确！");
+      ElMessage.error("检查输入的值是否正确");
     }
   );
 }
 
 function updateComments() {
-  // const index = storage.value.comments?.findIndex(
-  //   item => item.value === editCommentsRow.value.value
-  // );
-  // if (index >= 0) {
-  //   Utils.Forms.formValidator(
-  //     formInst.value,
-  //     () => {
-  //       storage.value.comments[index] = {
-  //         value: formData.value.text,
-  //         cost: formData.value.cost,
-  //         type: formData.value.type
-  //       };
-  //       commentsEditDialog.value = !commentsEditDialog.value;
-  //       formData.value.value = "";
-  //       formData.value.cost = 100;
-  //       formData.value.type = "支";
-  //       ElMessage.success("更新成功！");
-  //     },
-  //     () => {
-  //       ElMessage.error("检查值是否正确！");
-  //     }
-  //   );
-  // } else {
-  //   ElMessage.error("更新失败！");
-  // }
+  const index = data.value.items?.findIndex(item => item.value === editCommentsRow.value.value);
+  if (index >= 0) {
+    Utils.Forms.formValidator(
+      formInst.value,
+      () => {
+        data.value.items[index] = {
+          value: formData.value.text,
+          cost: formData.value.cost,
+          type: formData.value.type
+        };
+        Database.put(database, Const.COMMENTS, Utils.Objects.raw(data.value), "0");
+        commentsEditDialog.value = !commentsEditDialog.value;
+        formData.value.value = "";
+        formData.value.cost = 100;
+        formData.value.type = "支";
+      },
+      () => {
+        ElMessage.error("检查输入的值是否正确");
+      }
+    );
+  } else {
+    ElMessage.error("更新失败");
+  }
 }
 
 function confirmDelComments() {
-  // const index = storage.value.comments?.findIndex(
-  //   item => item.value === editCommentsRow.value.value
-  // );
-  // if (index >= 0) {
-  //   storage.value.comments.splice(index, 1);
-  //   ElMessage.success("删除成功！");
-  //   delCommentsDialog.value = !delCommentsDialog.value;
-  // } else {
-  //   ElMessage.error("删除失败！");
-  // }
+  const index = data.value.items?.findIndex(item => item.value === editCommentsRow.value.value);
+  if (index >= 0) {
+    data.value.items.splice(index, 1);
+    Database.put(database, Const.COMMENTS, Utils.Objects.raw(data.value), "0");
+    delCommentsDialog.value = !delCommentsDialog.value;
+  } else {
+    ElMessage.error("删除失败");
+  }
 }
 
 const filterType = (value: string, row: any) => {
@@ -156,40 +141,40 @@ function beforeCreateRemark() {
       </el-button>
     </div>
     <div class="f-c-b flex-gap-1 flex-wrap">
-      <!--      <el-table stripe border :data="storage.comments">-->
-      <!--        <el-table-column fixed="left" prop="value" label="备注" width="95" />-->
-      <!--        <el-table-column-->
-      <!--          prop="type"-->
-      <!--          label="类型"-->
-      <!--          :filters="[-->
-      <!--            { text: '支', value: '支' },-->
-      <!--            { text: '收', value: '收' }-->
-      <!--          ]"-->
-      <!--          :filter-method="filterType" />-->
-      <!--        <el-table-column prop="cost" sortable label="金额" />-->
-      <!--        <el-table-column fixed="right" label="操作" width="80">-->
-      <!--          <template #default="scope">-->
-      <!--            <el-button-->
-      <!--              link-->
-      <!--              type="danger"-->
-      <!--              size="small"-->
-      <!--              @click.prevent="beforeCloseComments(scope.row)">-->
-      <!--              <template #icon>-->
-      <!--                <div class="i-tabler-trash"></div>-->
-      <!--              </template>-->
-      <!--            </el-button>-->
-      <!--            <el-button-->
-      <!--              link-->
-      <!--              type="success"-->
-      <!--              size="small"-->
-      <!--              @click.prevent="beforeUpdateComments(scope.row)">-->
-      <!--              <template #icon>-->
-      <!--                <div class="i-tabler-edit"></div>-->
-      <!--              </template>-->
-      <!--            </el-button>-->
-      <!--          </template>-->
-      <!--        </el-table-column>-->
-      <!--      </el-table>-->
+      <el-table stripe border :data="data.items">
+        <el-table-column fixed="left" prop="value" label="备注" width="95" />
+        <el-table-column
+          prop="type"
+          label="类型"
+          :filters="[
+            { text: '支', value: '支' },
+            { text: '收', value: '收' }
+          ]"
+          :filter-method="filterType" />
+        <el-table-column prop="cost" sortable label="金额" />
+        <el-table-column fixed="right" label="操作" width="80">
+          <template #default="scope">
+            <el-button
+              link
+              type="danger"
+              size="small"
+              @click.prevent="beforeCloseComments(scope.row)">
+              <template #icon>
+                <div class="i-tabler-trash"></div>
+              </template>
+            </el-button>
+            <el-button
+              link
+              type="success"
+              size="small"
+              @click.prevent="beforeUpdateComments(scope.row)">
+              <template #icon>
+                <div class="i-tabler-edit"></div>
+              </template>
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
     <el-dialog v-model="delCommentsDialog" append-to-body title="消息提示" width="90%">
       <div>

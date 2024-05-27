@@ -6,19 +6,11 @@ declare interface IComments {
   id?: string;
 }
 
-declare interface ILastViewd {
-  Y?: string;
-  M?: string;
-}
-
 declare interface IItem {
   cost?: number;
   text?: string;
   type?: "支" | "收";
-  sameat?: ISameat;
 }
-
-declare type ISameat = number[] | string[];
 
 declare interface IMonth {
   surplus?: number;
@@ -28,5 +20,5 @@ declare interface IMonth {
 
 declare type IRecord = {
   id: string;
-  items: Record<string, IMonth>
+  items: Record<string, IMonth>;
 };
