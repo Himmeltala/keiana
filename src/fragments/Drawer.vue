@@ -19,16 +19,27 @@ const importJson: UploadProps["onChange"] = async file => {
     };
   }
 };
+
+function delDatabase() {
+  Database.del(Const.TALLY_PAD);
+}
 </script>
 
 <template>
   <div class="mb-5">
     <div class="text-1.2rem mb-5">数据管理</div>
-    <el-button class="mb-5" plain round type="primary" @click="exportJson">导出数据</el-button>
+    <div class="mb-5">
+      <el-button plain round type="primary" @click="exportJson">导出数据</el-button>
+    </div>
     <el-upload :auto-upload="false" :limit="1" :on-change="importJson" class="mb-5">
       <el-button plain round type="success">导入数据</el-button>
     </el-upload>
-    <el-button plain round type="warning" @click="$router.push('/comments')"> 管理备注</el-button>
+    <div class="mb-5">
+      <el-button plain round type="warning" @click="$router.push('/comments')">管理备注</el-button>
+    </div>
+    <div>
+      <el-button plain round type="danger" @click="delDatabase">清除数据</el-button>
+    </div>
   </div>
 </template>
 

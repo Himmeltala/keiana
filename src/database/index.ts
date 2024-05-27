@@ -167,4 +167,28 @@ export namespace Database {
 
     return promise;
   }
+
+  export function del(dbname: string) {
+    const promise = new Promise((resolve, reject) => {
+      const req = indexedDB.deleteDatabase(dbname);
+
+      req.onsuccess = function () {
+        resolve(null);
+      };
+
+      req.onerror = function () {
+        reject(null);
+      };
+
+      req.onblocked = function () {
+        reject(null);
+      };
+    });
+
+    promise.catch(error => {
+      console.error(error);
+    });
+
+    return promise;
+  }
 }
