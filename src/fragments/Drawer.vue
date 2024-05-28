@@ -38,7 +38,11 @@ function delDatabase() {
       <el-button plain round type="warning" @click="$router.push('/comments')">管理备注</el-button>
     </div>
     <div>
-      <el-button plain round type="danger" @click="delDatabase">清除数据</el-button>
+      <el-popconfirm title="确定清除数据？" @confirm="delDatabase">
+        <template #reference>
+          <el-button plain round type="danger">清除数据</el-button>
+        </template>
+      </el-popconfirm>
     </div>
   </div>
 </template>
