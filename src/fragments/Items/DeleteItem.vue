@@ -37,9 +37,9 @@ async function confirmSubmit() {
 
 <template>
   <div>
-    <el-button size="small" text type="danger" @click="isShowDialog = !isShowDialog"
-      >删除收支</el-button
-    >
+    <el-button size="small" text type="danger" @click="isShowDialog = !isShowDialog">
+      删除收支
+    </el-button>
     <el-dialog v-model="isShowDialog" append-to-body title="删除收支提示" width="90%">
       <el-form ref="formInst" hide-required-asterisk label-position="left" status-icon>
         <el-form-item label="备注" prop="text">
@@ -52,12 +52,6 @@ async function confirmSubmit() {
           <el-radio-group v-model="data.items[currM].items[index].type">
             <el-radio v-for="i in ['支', '收']" :label="i" :value="i" disabled></el-radio>
           </el-radio-group>
-        </el-form-item>
-        <el-form-item label="连同" prop="sameat">
-          <template v-for="i in data.items[currM].items[index].sameat">
-            <el-checkbox v-if="i == currM" :label="i + '月'" :value="i" checked disabled />
-            <el-checkbox v-else :label="i + '月'" :value="i" disabled />
-          </template>
         </el-form-item>
         <el-form-item class="mt-10">
           <div class="f-c-c w-100%">

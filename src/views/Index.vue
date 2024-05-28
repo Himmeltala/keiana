@@ -9,26 +9,15 @@ const YList = ref<any[]>(await Database.keys(database, Const.RECORD));
 
 const isDrawer = ref(false);
 
-function calcCurrMBalance() {
-  if (!data?.value.items[currM.value]) return 0;
-
-  let totalCost = 0;
-  data.value.items[currM.value].items.forEach(item => (totalCost += Number(item.cost)));
-  data.value.items[currM.value].surplus = data.value.items[currM.value].budget - totalCost;
-  Database.put(database, Const.RECORD, Utils.Objects.raw(data.value), currY.value).then(() =>
-    calcRisingRate()
-  );
-
-  return data.value.items[currM.value].surplus;
-}
-
 const risingRate = ref(0);
 
 function calcRisingRate() {
   if (!data?.value.items[currM.value]) return 0;
 
+  let rate = 0;
   let lastMCost = 0,
     currMCost = 0;
+
   const keys = MList.value.sort((a, b) => Number(a) - Number(b));
   const index = keys.findIndex(item => item === currM.value);
   const isFirst = index === 0;
@@ -39,15 +28,28 @@ function calcRisingRate() {
       data.value.items[keys[index]].items.forEach(item => (currMCost += item.cost));
     }
 
-    const hasNonZeroLastCost = lastMCost !== 0;
-    risingRate.value = hasNonZeroLastCost
-      ? Math.round(((currMCost - lastMCost) / lastMCost) * 100 * 10) / 10
-      : 0;
+    const not0 = lastMCost !== 0;
+    rate = not0 ? (((currMCost - lastMCost) / lastMCost) * 100 * 10) / 10 : 0;
   } else {
-    risingRate.value = 0;
+    rate = 0;
   }
 
-  return risingRate.value;
+  return rate;
+}
+
+function calcCurrMBalance() {
+  if (!data?.value.items[currM.value]) return 0;
+
+  let totalCost = 0;
+  data.value.items[currM.value].items.forEach(item => (totalCost += Number(item.cost)));
+  data.value.items[currM.value].surplus = Number(
+    (data.value.items[currM.value].budget - totalCost).toFixed(2)
+  );
+  Database.put(database, Const.RECORD, Utils.Objects.raw(data.value), currY.value).then(() => {
+    risingRate.value = calcRisingRate();
+  });
+
+  return data.value.items[currM.value].surplus;
 }
 
 function calcOutcome() {
@@ -152,9 +154,9 @@ async function onDeletedR() {
             <span v-show="data?.items[currM]?.surplus >= 0" class="text-green">
               {{ calcCurrMBalance() }}
             </span>
-            <span v-show="data?.items[currM]?.surplus < 0" class="text-red">{{
-              calcCurrMBalance()
-            }}</span>
+            <span v-show="data?.items[currM]?.surplus < 0" class="text-red">
+              {{ calcCurrMBalance() }}
+            </span>
           </div>
         </div>
         <div class="f-c-e text-text-regular text-0.8rem">
@@ -167,11 +169,11 @@ async function onDeletedR() {
           </div>
           <span class="text-text-secondary mr-1">，增长</span>
           <div v-show="risingRate > 0" class="f-c-c text-red">
-            +{{ risingRate }}%
+            {{ risingRate.toFixed(2) }}%
             <div class="i-tabler-caret-up"></div>
           </div>
           <div v-show="risingRate <= 0" class="f-c-c text-green">
-            {{ risingRate }}%
+            {{ risingRate.toFixed(2) }}%
             <div class="i-tabler-caret-down"></div>
           </div>
         </div>

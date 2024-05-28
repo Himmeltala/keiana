@@ -41,25 +41,25 @@ const formRule = ref<FormRules>({
 const formData = ref<IItem>({
   ...props.value
 });
+const comments = ref<IComments[]>([]);
+
+onMounted(() => {
+  Database.get<{ items: IComments[] }>(props.database, Const.COMMENTS, "0").then(r => {
+    comments.value = r.items;
+  });
+});
 
 const findFromComments = (target: any, callback: any) => {
-  // const remark = target
-  //   ? storage.value.comments.filter(createFilter(target))
-  //   : storage.value.comments;
-  // callback(remark);
+  const comment = target ? comments.value.filter(Utils.createFilter(target)) : comments.value;
+  callback(comment);
 };
 
-const createFilter = (target: any) => {
-  return (source: any) => {
-    return source.value.includes(target);
-  };
-};
-
-function onAutocompleteSelected(remark: IComments) {
-  // props.data[props.currY][props.currM].items[props.index].cost = remark.cost;
+function onAutocompleteSelected(comment: IComments) {
+  formData.value.cost = comment.cost;
 }
 
 function openUpdateDialog() {
+  formData.value = { ...props.value };
   isShowDialog.value = !isShowDialog.value;
 }
 

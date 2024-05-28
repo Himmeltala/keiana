@@ -9,12 +9,6 @@ const delCommentsDialog = ref(false);
 const commentsEditType = ref<"新增" | "更新">("新增");
 const commentsEditDialog = ref(false);
 
-const createFilter = (target: any) => {
-  return (source: any) => {
-    return source.value.includes(target);
-  };
-};
-
 const formInst = ref<FormInstance>();
 const formRule = ref<FormRules>({
   text: [
@@ -40,7 +34,7 @@ function addComments() {
   Utils.Forms.formValidator(
     formInst.value,
     () => {
-      const hasTextInComments = data.value.items.filter(createFilter(formData.value.text));
+      const hasTextInComments = data.value.items.filter(Utils.createFilter(formData.value.text));
 
       if (!hasTextInComments || (hasTextInComments.length == 0 && formData.value.text)) {
         data.value.items.push({

@@ -23,4 +23,10 @@ export namespace Utils {
       return null;
     }
   }
+
+  export const createFilter = (target: any) => {
+    return (source: any) => {
+      return source.value.includes(target);
+    };
+  };
 }

@@ -57,14 +57,8 @@ function confirmSubmit() {
 }
 
 const findFromComments = (target: any, callback: any) => {
-  const comment = target ? comments.value.filter(createFilter(target)) : comments.value;
+  const comment = target ? comments.value.filter(Utils.createFilter(target)) : comments.value;
   callback(comment);
-};
-
-const createFilter = (target: any) => {
-  return (source: any) => {
-    return source.value.includes(target);
-  };
 };
 
 function onAutocompleteSelected(comment: IComments) {
