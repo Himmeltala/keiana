@@ -26,11 +26,12 @@ const formInst = ref<FormInstance>();
 const formRule = ref<FormRules>({
   budget: [{ validator: Utils.Forms.validateMoney, trigger: "change" }]
 });
-const formData = ref<IMonth>({
+const formData = reactive<IMonth>({
   budget: props.data.items[props.currM].budget
 });
 
 function openUpdateDialog() {
+  formData.budget = props.data.items[props.currM].budget;
   dialog.value = !dialog.value;
 }
 
@@ -38,7 +39,7 @@ function confirmSubmit() {
   Utils.Forms.formValidator(
     formInst.value,
     async () => {
-      props.data.items[props.currM].budget = Number(formData.value.budget);
+      props.data.items[props.currM].budget = Number(formData.budget);
       await Database.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY);
       dialog.value = !dialog.value;
     },

@@ -135,23 +135,23 @@ function beforeCreateRemark() {
       </el-button>
     </div>
     <div class="f-c-b flex-gap-1 flex-wrap">
-      <el-table stripe border :data="data.items">
-        <el-table-column fixed="left" prop="value" label="备注" width="95" />
+      <el-table :data="data.items" border stripe>
+        <el-table-column fixed="left" label="备注" prop="value" width="95" />
         <el-table-column
-          prop="type"
-          label="类型"
+          :filter-method="filterType"
           :filters="[
             { text: '支', value: '支' },
             { text: '收', value: '收' }
           ]"
-          :filter-method="filterType" />
-        <el-table-column prop="cost" sortable label="金额" />
+          label="类型"
+          prop="type" />
+        <el-table-column label="金额" prop="cost" sortable />
         <el-table-column fixed="right" label="操作" width="80">
           <template #default="scope">
             <el-button
               link
-              type="danger"
               size="small"
+              type="danger"
               @click.prevent="beforeCloseComments(scope.row)">
               <template #icon>
                 <div class="i-tabler-trash"></div>
@@ -159,8 +159,8 @@ function beforeCreateRemark() {
             </el-button>
             <el-button
               link
-              type="success"
               size="small"
+              type="success"
               @click.prevent="beforeUpdateComments(scope.row)">
               <template #icon>
                 <div class="i-tabler-edit"></div>

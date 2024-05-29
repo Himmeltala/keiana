@@ -28,7 +28,7 @@ const props = defineProps({
 const emits = defineEmits(["onCreated"]);
 
 const dialog = ref(false);
-const formData = ref({
+const formData = reactive({
   year: props.currY,
   month: "1月",
   budget: 5000
@@ -40,29 +40,53 @@ function confirmSubmit() {
   Utils.Forms.formValidator(
     formInst.value,
     () => {
-      const currM = formData.value.month.split("月")[0];
-      const index = props.mList.findIndex(item => item == currM);
+      const currM = formData.month.split("月")[0];
 
-      if (index == -1) {
-        props.data.items[currM] = { surplus: 0, budget: formData.value.budget, items: [] };
-        Database.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY).then(
-          () => {
-            dialog.value = !dialog.value;
-            emits("onCreated");
+      if (formData.year != props.currY) {
+        Database.get<IRecord>(props.database, Const.RECORD, formData.year).then(r => {
+          if (!r) {
+            Database.add(props.database, Const.RECORD, {
+              id: formData.year,
+              items: {
+                [currM]: {
+                  budget: formData.budget, surplus: 0, items: []
+                }
+              }
+            }).then(
+              () => {
+                dialog.value = !dialog.value;
+                emits("onCreated");
+              }
+            );
+          } else {
+            if (!Object.keys(r.items).includes(currM)) {
+              r.items[currM] = { surplus: 0, budget: formData.budget, items: [] };
+              Database.put(props.database, Const.RECORD, Utils.Objects.raw(r), props.currY).then(
+                () => {
+                  dialog.value = !dialog.value;
+                  emits("onCreated");
+                }
+              );
+            } else ElMessage.error("已有该记录");
           }
-        );
+        });
       } else {
-        ElMessage.error("已有该记录");
+        if (!props.mList.includes(currM)) {
+          props.data.items[currM] = { surplus: 0, budget: formData.budget, items: [] };
+          Database.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY).then(
+            () => {
+              dialog.value = !dialog.value;
+              emits("onCreated");
+            }
+          );
+        } else ElMessage.error("已有该记录");
       }
     },
     () => ElMessage.error("创建记录失败")
   );
 }
 
-const keys = <{ value: string; label: string }[]>[];
-for (let i = 0; i < 12; i++) {
-  keys.push({ value: `${i + 1}`, label: `${i + 1}` });
-}
+const keys = Array.from({ length: 12 }, (_, i) => ({ value: `${i + 1}`, label: `${i + 1}` }));
 </script>
 
 <template>

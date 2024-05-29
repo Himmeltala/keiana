@@ -67,7 +67,8 @@ async function onCurrYChange() {
   currM.value = MList.value[0];
 }
 
-function onCurrMChange() {}
+function onCurrMChange() {
+}
 
 async function onCreatedR() {
   data.value = await Database.get(database, Const.RECORD, currY.value);
