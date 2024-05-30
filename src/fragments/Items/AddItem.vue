@@ -75,7 +75,7 @@ function afterOpenedDialog() {
 
 <template>
   <div>
-    <el-button size="small" text type="success" @click="dialog = !dialog">添加收支</el-button>
+    <el-button size="small" plain type="success" @click="dialog = !dialog">添加收支</el-button>
     <el-dialog
       v-model="dialog"
       append-to-body

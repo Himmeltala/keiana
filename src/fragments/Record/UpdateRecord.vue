@@ -5,7 +5,8 @@ import type { FormInstance, FormRules } from "element-plus";
 
 const props = defineProps({
   database: {
-    type: Object as PropType<IDBDatabase>
+    type: Object as PropType<IDBDatabase>,
+    required: true
   },
   data: {
     type: Object as PropType<IRecord>,
@@ -27,11 +28,11 @@ const formRule = ref<FormRules>({
   budget: [{ validator: Utils.Forms.validateMoney, trigger: "change" }]
 });
 const formData = reactive<IMonth>({
-  budget: props.data.items[props.currM].budget
+  budget: props.data?.items[props.currM]?.budget || 0
 });
 
 function openUpdateDialog() {
-  formData.budget = props.data.items[props.currM].budget;
+  formData.budget = props.data?.items[props.currM]?.budget || 0
   dialog.value = !dialog.value;
 }
 
@@ -52,7 +53,7 @@ function confirmSubmit() {
 
 <template>
   <div>
-    <el-button size="small" text type="info" @click="openUpdateDialog">修改记录</el-button>
+    <el-button size="small" plain type="info" @click="openUpdateDialog">修改记录</el-button>
     <el-dialog v-model="dialog" append-to-body title="修改记录" width="90%">
       <el-form
         ref="formInst"

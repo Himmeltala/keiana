@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import DeleteRecord from "@/fragments/Record/DeleteRecord.vue";
+
 const database = await Database.create();
 const datetime = await Database.get<ViewDate>(database, Const.VIEW_DATE, "0");
 const currY = ref(datetime.Y);
@@ -6,7 +8,6 @@ const currM = ref(datetime.M);
 const data = ref(await Database.get<IRecord>(database, Const.RECORD, currY.value));
 const MList = ref(Object.keys(data.value.items));
 const YList = ref<any[]>(await Database.keys(database, Const.RECORD));
-const drawer = ref(false);
 const risingRate = ref(0);
 
 function calcRisingRate() {
@@ -77,63 +78,38 @@ async function onCreatedR() {
   });
 }
 
-async function onDeletedR() {
-  const nextM = Utils.deleteAndReturnNext(MList.value, currM.value);
-  if (nextM) {
-    delete data.value.items[currM.value];
-    Database.put(database, Const.RECORD, Utils.Objects.raw(data.value), currY.value).then(() => {
-      currM.value = String(nextM);
-      Database.put(database, Const.VIEW_DATE, { id: "0", Y: currY.value, M: currM.value }, "0");
-    });
-  } else ElMessage.error("至少保留一条记录");
+function onDeletedR(nextM: string) {
+  currM.value = String(nextM);
 }
 </script>
 
 <template>
   <div class="main">
-    <div class="f-c-b">
-      <el-button plain round size="small" @click="drawer = !drawer">
-        <template #icon>
-          <div class="i-tabler-menu"></div>
-        </template>
-      </el-button>
+    <div class="mb-4">
+      <div class="mb-2">日期</div>
+      <div class="f-c-b">
+        <el-select v-model="currY" class="mr-4" @change="onCurrYChange">
+          <el-option v-for="item in YList" :key="item" :label="item + '年'" :value="item" />
+        </el-select>
+        <el-select v-model="currM" @change="onCurrMChange">
+          <el-option v-for="item in MList" :key="item + '月'" :label="item + '月'" :value="item" />
+        </el-select>
+      </div>
     </div>
-    <div class="f-c-b mt-6">
-      <el-select v-model="currY" class="mr-4" @change="onCurrYChange">
-        <el-option v-for="item in YList" :key="item" :label="item + '年'" :value="item" />
-      </el-select>
-      <el-select v-model="currM" @change="onCurrMChange">
-        <el-option v-for="item in MList" :key="item + '月'" :label="item + '月'" :value="item" />
-      </el-select>
+    <div class="mb-4">
+      <div class="mb-2">操作</div>
+      <div class="f-c-b">
+        <DeleteRecord :m-list="MList" :curr-y="currY" :curr-m="currM" :data="data" :database="database"
+                      @on-deleted="onDeletedR" />
+        <CreateRecord :curr-m="currM" :curr-y="currY" :data="data" :database="database" :m-list="MList"
+                      @on-created="onCreatedR" />
+        <UpdateRecord :curr-m="currM" :curr-y="currY" :data="data" :database="database" />
+        <AddItem :curr-m="currM" :curr-y="currY" :data="data" :database="database" />
+      </div>
     </div>
-    <div class="f-c-b my-4">
-      <el-popconfirm
-        cancel-button-text="取消"
-        confirm-button-text="确定"
-        title="确定删除该记录？"
-        @confirm="onDeletedR">
-        <template #reference>
-          <div>
-            <el-button size="small" text type="danger">删除记录</el-button>
-          </div>
-        </template>
-      </el-popconfirm>
-      <CreateRecord
-        :curr-m="currM"
-        :curr-y="currY"
-        :data="data"
-        :database="database"
-        :m-list="MList"
-        @on-created="onCreatedR" />
-      <UpdateRecord
-        :curr-m="currM"
-        :curr-y="currY"
-        :data="data"
-        :database="database" />
-      <AddItem :curr-m="currM" :curr-y="currY" :data="data" :database="database" />
-    </div>
-    <div class="mt-2">
-      <div>
+    <div>
+      <div class="mb-4">
+        <div class="mb-2">数据</div>
         <div class="f-c-s text-text-regular text-0.8rem">
           <div class="f-c-c">
             <div class="i-tabler-coin-yen text-text-secondary mr-1"></div>
@@ -169,7 +145,7 @@ async function onDeletedR() {
           </div>
         </div>
       </div>
-      <div class="mt-4">
+      <div>
         <el-result v-if="!data?.items[currM]?.balance?.length" class="mt-20" icon="info" title="提示">
           <template #sub-title>
             <p>没有收支记录</p>
@@ -193,28 +169,14 @@ async function onDeletedR() {
           </div>
           <template #dropdown>
             <div class="m-2">
-              <UpdateItem
-                :curr-m="currM"
-                :curr-y="currY"
-                :data="data"
-                :database="database"
-                :index="index"
-                :value="value"
-                class="mb-2" />
-              <DeleteItem
-                :curr-m="currM"
-                :curr-y="currY"
-                :data="data"
-                :database="database"
-                :index="index"
-                :value="value" />
+              <UpdateItem :curr-m="currM" :curr-y="currY" :data="data" :database="database"
+                          :index="index" :value="value" class="mb-2" />
+              <DeleteItem :curr-m="currM" :curr-y="currY" :data="data" :database="database"
+                          :index="index" :value="value" />
             </div>
           </template>
         </el-dropdown>
       </div>
     </div>
   </div>
-  <el-drawer v-model="drawer" :with-header="false" direction="ltr" size="70%">
-    <Drawer />
-  </el-drawer>
 </template>

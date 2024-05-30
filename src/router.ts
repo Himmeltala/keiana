@@ -16,6 +16,11 @@ const router = createRouter({
       path: "/infographic",
       name: "统计",
       component: () => import("@/views/Infographic.vue")
+    },
+    {
+      path: "/settings",
+      name: "设置",
+      component: () => import("@/views/Settings.vue")
     }
   ],
   history: createWebHashHistory()

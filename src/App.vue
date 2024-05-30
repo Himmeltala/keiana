@@ -33,6 +33,12 @@ const route = useRoute();
       </div>
       <div class="text-center text-0.6rem">统计</div>
     </div>
+    <div :class="{ 'text-current': route.name === '设置' }" class="w-4rem" @click="$router.push('/settings')">
+      <div class="f-c-c text-1.1rem">
+        <div class="i-tabler-settings"></div>
+      </div>
+      <div class="text-center text-0.6rem">设置</div>
+    </div>
   </div>
 </template>
 

@@ -10,7 +10,7 @@ declare module 'vue' {
     AddItem: typeof import('./src/fragments/Items/AddItem.vue')['default']
     CreateRecord: typeof import('./src/fragments/Record/CreateRecord.vue')['default']
     DeleteItem: typeof import('./src/fragments/Items/DeleteItem.vue')['default']
-    Drawer: typeof import('./src/fragments/Drawer.vue')['default']
+    DeleteRecord: typeof import('./src/fragments/Record/DeleteRecord.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     UpdateItem: typeof import('./src/fragments/Items/UpdateItem.vue')['default']
