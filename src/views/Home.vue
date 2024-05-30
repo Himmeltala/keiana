@@ -7,7 +7,7 @@ const currY = ref(datetime.Y);
 const currM = ref(datetime.M);
 const data = ref(await Database.get<IRecord>(database, Const.RECORD, currY.value));
 const MList = ref(Object.keys(data.value.items));
-const YList = ref<any[]>(await Database.keys(database, Const.RECORD));
+const YList = ref<string[]>(await Database.keys(database, Const.RECORD));
 const risingRate = ref(0);
 
 function calcRisingRate() {
@@ -71,15 +71,22 @@ function onCurrMChange() {
   Database.put(database, Const.VIEW_DATE, { id: "0", Y: currY.value, M: currM.value }, "0");
 }
 
-async function onCreatedR() {
-  Database.get<IRecord>(database, Const.RECORD, currY.value).then(_data => {
+async function onCreatedR(nextY: string) {
+  Database.get<IRecord>(database, Const.RECORD, nextY).then(_data => {
     data.value = _data;
-    MList.value = Object.keys(data.value.items);
+    Database.keys(database, Const.RECORD).then(_YList => {
+      YList.value = _YList;
+      currY.value = nextY;
+      MList.value = Object.keys(data.value.items);
+      currM.value = MList.value[0];
+      Database.put(database, Const.VIEW_DATE, { id: "0", Y: currY.value, M: currM.value }, "0");
+    });
   });
 }
 
 function onDeletedR(nextM: string) {
-  currM.value = String(nextM);
+  currM.value = nextM;
+  Database.put(database, Const.VIEW_DATE, { id: "0", Y: currY.value, M: currM.value }, "0");
 }
 </script>
 

@@ -1,13 +1,23 @@
 <script setup lang="ts">
 import type { UploadProps } from "element-plus";
 
-function exportJson() {
-  // const blob = new Blob([JSON.stringify(getStorage().value)], { type: "text/json" });
-  // const a = document.createElement("a");
-  // const date = Utils.Dates.generateDate();
-  // a.download = `${date.y}-${date.m}-${date.d}${date.h}${date.minute}${date.second}.json`;
-  // a.href = URL.createObjectURL(blob);
-  // a.click();
+const database = await Database.create();
+
+async function exportJson() {
+  const records = await Database.get<IRecord[]>(database, Const.RECORD);
+  const comments = await Database.get(database, Const.COMMENTS, "0");
+  const datetime = await Database.get(database, Const.VIEW_DATE, "0");
+
+  const blob = new Blob([JSON.stringify([
+    {
+      records, comments, datetime
+    }
+  ])], { type: "text/json" });
+  const a = document.createElement("a");
+  const date = Utils.Dates.generateDate();
+  a.download = `${date.y}-${date.m}-${date.d}${date.h}${date.minute}${date.second}.json`;
+  a.href = URL.createObjectURL(blob);
+  a.click();
 }
 
 const importJson: UploadProps["onChange"] = async file => {
@@ -16,12 +26,25 @@ const importJson: UploadProps["onChange"] = async file => {
     reader.readAsText(file.raw);
     reader.onload = () => {
       const result = JSON.parse(reader.result.toString());
+
+      Database.clear(database, Const.RECORD).then(() => {
+        result[0].records.forEach((i: any) => {
+          Database.leadIn(database, i, Const.RECORD);
+        });
+      });
+      Database.clear(database, Const.COMMENTS).then(() => {
+        Database.leadIn(database, result[0].comments, Const.COMMENTS);
+      });
+      Database.clear(database, Const.VIEW_DATE).then(() => {
+        Database.leadIn(database, result[0].datetime, Const.VIEW_DATE);
+      });
     };
   }
 };
 
-function delDatabase() {
-  Database.del(Const.TALLY_PAD);
+async function delDatabase() {
+  await exportJson();
+  await Database.del(Const.TALLY_PAD);
 }
 </script>
 

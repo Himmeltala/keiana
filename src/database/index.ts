@@ -83,7 +83,7 @@ export namespace Database {
       const store = transaction.objectStore(table);
       const req = store.get(key);
 
-      req.onsuccess = function(event) {
+      req.onsuccess = function() {
         store.put(data).onsuccess = function() {
           resolve(db);
         };
@@ -131,10 +131,10 @@ export namespace Database {
           if (cursor) {
             arr.push(cursor.value);
             cursor.continue();
+          } else {
+            // @ts-ignore
+            resolve(arr);
           }
-
-          // @ts-ignore
-          resolve(arr);
         };
 
         req.onerror = function() {
@@ -194,5 +194,35 @@ export namespace Database {
     });
 
     return promise;
+  }
+
+  export function clear(db: IDBDatabase, table: string) {
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([table], "readwrite");
+      const store = transaction.objectStore(table);
+      const req = store.clear();
+
+      req.onsuccess = function() {
+        resolve("");
+      };
+      req.onerror = function() {
+        reject("");
+      };
+    });
+  }
+
+  export function leadIn(db: IDBDatabase, data: any, table: string) {
+    const transaction = db.transaction([table], "readwrite");
+    const store = transaction.objectStore(table);
+
+    const req = store.add(data);
+
+    req.onsuccess = function() {
+      console.log("Data added: ", data);
+    };
+
+    req.onerror = function() {
+      console.error("Error adding data: ");
+    };
   }
 }

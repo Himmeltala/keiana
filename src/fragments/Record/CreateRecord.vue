@@ -49,13 +49,13 @@ function confirmSubmit() {
               id: formData.year,
               items: {
                 [currM]: {
-                  budget: formData.budget, surplus: 0, items: []
+                  budget: formData.budget, surplus: 0, balance: []
                 }
               }
             }).then(
               () => {
                 dialog.value = !dialog.value;
-                emits("onCreated");
+                emits("onCreated", formData.year);
               }
             );
           } else {
@@ -64,7 +64,7 @@ function confirmSubmit() {
               Database.put(props.database, Const.RECORD, Utils.Objects.raw(r), props.currY).then(
                 () => {
                   dialog.value = !dialog.value;
-                  emits("onCreated");
+                  emits("onCreated", formData.year);
                 }
               );
             } else ElMessage.error("已有该记录");
@@ -76,7 +76,7 @@ function confirmSubmit() {
           Database.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY).then(
             () => {
               dialog.value = !dialog.value;
-              emits("onCreated");
+              emits("onCreated", formData.year);
             }
           );
         } else ElMessage.error("已有该记录");
