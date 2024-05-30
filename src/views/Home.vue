@@ -106,7 +106,7 @@ function onDeletedR(nextM: string) {
     <div class="mb-4">
       <div class="mb-2">操作</div>
       <div class="f-c-b">
-        <DeleteRecord :m-list="MList" :curr-y="currY" :curr-m="currM" :data="data" :database="database"
+        <DeleteRecord :curr-m="currM" :curr-y="currY" :data="data" :database="database" :m-list="MList"
                       @on-deleted="onDeletedR" />
         <CreateRecord :curr-m="currM" :curr-y="currY" :data="data" :database="database" :m-list="MList"
                       @on-created="onCreatedR" />

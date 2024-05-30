@@ -45,16 +45,16 @@ function calcTotalCost(obj: any) {
   }
 
   recursiveSum(obj);
-  return total;
+  return Utils.formatNumberWithUnits(total);
 }
 
 function countElemsLen(obj: any) {
-  let totalCount = 0;
+  let total = 0;
 
   function recursiveCount(o: any) {
     for (let key in o) {
       if (Array.isArray(o[key])) {
-        totalCount += o[key].length;
+        total += o[key].length;
       } else if (typeof o[key] === "object" && o[key] !== null) {
         recursiveCount(o[key]);
       }
@@ -62,7 +62,17 @@ function countElemsLen(obj: any) {
   }
 
   recursiveCount(obj);
-  return totalCount;
+  return total;
+}
+
+function calcTotalBudget(items: any) {
+  let total = 0;
+  for (let key in items) {
+    if (items.hasOwnProperty(key)) {
+      total += Number(items[key].budget);
+    }
+  }
+  return Utils.formatNumberWithUnits(total);
 }
 
 const grouped = group(data.value);
@@ -79,9 +89,13 @@ function calcCost(balances: IBalance[]) {
   <div>
     <div class="mb-2">
       <div>收支统计</div>
-      <div class="text-0.8rem text-text-secondary">统计相同收支总金额</div>
+      <div class="text-0.8rem text-text-secondary">统计收支情况</div>
     </div>
     <div class="mb-4 f-c-b flex-nowrap">
+      <div class="flex-basis-50% max-w-50%">
+        <div class="text-0.8rem">总预算 ({{ Object.keys(data.items).length }})</div>
+        <div class="text-gray">{{ calcTotalBudget(data.items) }}</div>
+      </div>
       <div class="flex-basis-50% max-w-50%">
         <div class="text-0.8rem">总支出 ({{ countElemsLen(grouped["支"] || []) }})</div>
         <div class="text-red">{{ calcTotalCost(grouped["支"] || []) }}</div>
@@ -92,38 +106,28 @@ function calcCost(balances: IBalance[]) {
       </div>
     </div>
     <div v-for="(v, k) in grouped">
-      <template v-if="k === '支'">
-        <el-card>
-          <div>
-            <div>支出统计</div>
-            <div class="text-0.8rem text-text-secondary">相同类型的支出总数和总额</div>
+      <div v-if="k === '支'">
+        <div>支出</div>
+        <div class="mt-2 f-c-b flex-wrap">
+          <div v-for="(v1, k1) in v" class="mb-4 flex-basis-50% max-w-50%">
+            <el-statistic
+              :precision="2"
+              :title="k1 + ' (' + v1.length + ')'"
+              :value="calcCost(v1)" />
           </div>
-          <div class="mt-2 f-c-b flex-wrap">
-            <div v-for="(v1, k1) in v" class="mb-4 flex-basis-50% max-w-50%">
-              <el-statistic
-                :precision="2"
-                :title="k1 + ' (' + v1.length + ')'"
-                :value="calcCost(v1)" />
-            </div>
+        </div>
+      </div>
+      <div v-if="k === '收'" class="mt-4">
+        <div>收入</div>
+        <div class="mt-2 f-c-b flex-wrap">
+          <div v-for="(v1, k1) in v" class="mb-4 flex-basis-50% max-w-50%">
+            <el-statistic
+              :precision="2"
+              :title="k1 + ' (' + v1.length + ')'"
+              :value="calcCost(v1)" />
           </div>
-        </el-card>
-      </template>
-      <template v-if="k === '收'">
-        <el-card class="mt-4">
-          <div>
-            <div>收入统计</div>
-            <div class="text-0.8rem text-text-secondary">相同类型的收入总数和总额</div>
-          </div>
-          <div class="mt-2 f-c-b flex-wrap">
-            <div v-for="(v1, k1) in v" class="mb-4 flex-basis-50% max-w-50%">
-              <el-statistic
-                :precision="2"
-                :title="k1 + ' (' + v1.length + ')'"
-                :value="calcCost(v1)" />
-            </div>
-          </div>
-        </el-card>
-      </template>
+        </div>
+      </div>
     </div>
   </div>
 </template>

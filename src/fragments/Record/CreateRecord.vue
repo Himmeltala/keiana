@@ -91,7 +91,7 @@ const keys = Array.from({ length: 12 }, (_, i) => ({ value: `${i + 1}`, label: `
 
 <template>
   <div>
-    <el-button size="small" plain type="primary" @click="dialog = !dialog">创建记录</el-button>
+    <el-button plain size="small" type="primary" @click="dialog = !dialog">创建记录</el-button>
     <el-dialog
       v-model="dialog"
       append-to-body

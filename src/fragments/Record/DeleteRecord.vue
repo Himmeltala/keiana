@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { PropType } from "vue";
 
 const props = defineProps({
@@ -46,13 +46,13 @@ function handleDelete() {
       @confirm="handleDelete">
       <template #reference>
         <div>
-          <el-button size="small" plain type="danger">删除记录</el-button>
+          <el-button plain size="small" type="danger">删除记录</el-button>
         </div>
       </template>
     </el-popconfirm>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 </style>

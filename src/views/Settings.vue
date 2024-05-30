@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import type { UploadProps } from "element-plus";
 
 const database = await Database.create();
@@ -57,8 +57,8 @@ async function delDatabase() {
       <div class="f-c-c flex-basis-33.33% max-w-33.33%">
         <el-button plain round type="primary" @click="exportJson">导出数据</el-button>
       </div>
-      <el-upload class="f-c-c flex-basis-33.33% max-w-33.33%" accept="application/json" :auto-upload="false" :limit="1"
-                 :on-change="importJson" :show-file-list="false">
+      <el-upload :auto-upload="false" :limit="1" :on-change="importJson" :show-file-list="false"
+                 accept="application/json" class="f-c-c flex-basis-33.33% max-w-33.33%">
         <el-button plain round type="success">导入数据</el-button>
       </el-upload>
       <div class="f-c-c flex-basis-33.33% max-w-33.33%">
@@ -72,6 +72,6 @@ async function delDatabase() {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 </style>

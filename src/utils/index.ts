@@ -29,4 +29,24 @@ export namespace Utils {
       return source.value.includes(target);
     };
   };
+
+  export function formatNumberWithUnits(num: number) {
+    const units = ["K", "M", "B", "T"];
+    let unitIndex = -1;
+    let value = num;
+
+    while (value >= 1000 && unitIndex < units.length - 1) {
+      value /= 1000;
+      unitIndex++;
+    }
+
+    value = Math.round(value * 1000) / 1000;
+
+    if (unitIndex === -1) {
+      return num.toString();
+    } else {
+      return value + units[unitIndex];
+    }
+  }
+
 }

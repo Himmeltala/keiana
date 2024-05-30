@@ -32,7 +32,7 @@ const formData = reactive<IMonth>({
 });
 
 function openUpdateDialog() {
-  formData.budget = props.data?.items[props.currM]?.budget || 0
+  formData.budget = props.data?.items[props.currM]?.budget || 0;
   dialog.value = !dialog.value;
 }
 
@@ -53,7 +53,7 @@ function confirmSubmit() {
 
 <template>
   <div>
-    <el-button size="small" plain type="info" @click="openUpdateDialog">修改记录</el-button>
+    <el-button plain size="small" type="info" @click="openUpdateDialog">修改记录</el-button>
     <el-dialog v-model="dialog" append-to-body title="修改记录" width="90%">
       <el-form
         ref="formInst"
