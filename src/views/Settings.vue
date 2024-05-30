@@ -43,14 +43,13 @@ const importJson: UploadProps["onChange"] = async file => {
 };
 
 async function delDatabase() {
-  await exportJson();
   await Database.del(Const.TALLY_PAD);
 }
 </script>
 
 <template>
   <div>
-    <div class="mb-5">
+    <div class="mb-4">
       <div>设置</div>
       <div class="text-0.8rem text-text-secondary">一些设置和管理</div>
     </div>

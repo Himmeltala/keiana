@@ -44,6 +44,6 @@ const route = useRoute();
 
 <style scoped>
 .text-current {
-  color: #3498db; /* Replace with your desired color */
+  color: var(--el-color-primary); /* Replace with your desired color */
 }
 </style>

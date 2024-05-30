@@ -120,11 +120,11 @@ function beforeCreateRemark() {
 
 <template>
   <div>
-    <div class="mb-5">
+    <div class="mb-4">
       <div>我的备注</div>
       <div class="text-0.8rem text-text-secondary">红色代表支出，绿色代表收入</div>
     </div>
-    <div class="mb-5 f-c-e">
+    <div class="mb-4 f-c-e">
       <el-button plain round size="small" type="primary" @click="beforeCreateRemark">
         <template #icon>
           <div class="i-tabler-plus"></div>
