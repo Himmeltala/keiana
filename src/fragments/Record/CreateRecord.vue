@@ -8,7 +8,7 @@ const props = defineProps({
     type: Object as PropType<IDBDatabase>
   },
   data: {
-    type: Object,
+    type: Object as PropType<IRecord>,
     required: true
   },
   currM: {
@@ -60,7 +60,7 @@ function confirmSubmit() {
             );
           } else {
             if (!Object.keys(r.items).includes(currM)) {
-              r.items[currM] = { surplus: 0, budget: formData.budget, items: [] };
+              r.items[currM] = { surplus: 0, budget: formData.budget, balance: [] };
               Database.put(props.database, Const.RECORD, Utils.Objects.raw(r), props.currY).then(
                 () => {
                   dialog.value = !dialog.value;
@@ -72,7 +72,7 @@ function confirmSubmit() {
         });
       } else {
         if (!props.mList.includes(currM)) {
-          props.data.items[currM] = { surplus: 0, budget: formData.budget, items: [] };
+          props.data.items[currM] = { surplus: 0, budget: formData.budget, balance: [] };
           Database.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY).then(
             () => {
               dialog.value = !dialog.value;

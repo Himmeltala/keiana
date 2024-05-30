@@ -1,1 +1,0 @@
-import{_ as t,o as c,c as s,a as e}from"./index-55hloExM.js";const o={},a=e("div",{class:"mb-5"},[e("div",null,"收支统计"),e("div",{class:"text-0.8rem text-text-secondary"},"统计相同收支总金额")],-1),n=[a];function r(_,d){return c(),s("div",null,n)}const l=t(o,[["render",r]]);export{l as default};

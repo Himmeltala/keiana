@@ -8,7 +8,7 @@ const props = defineProps({
     type: Object as PropType<IDBDatabase>
   },
   data: {
-    type: Object,
+    type: Object as PropType<IRecord>,
     required: true
   },
   value: {
@@ -38,13 +38,13 @@ const formRule = ref<FormRules>({
     { min: 1, max: 50, message: "长度在1~50个字符之间", trigger: "blur" }
   ]
 });
-const formData = ref<IItem>({
+const formData = ref<IBalance>({
   ...props.value
 });
-const comments = ref<IComments[]>([]);
+const comments = ref<IComment[]>([]);
 
 onMounted(() => {
-  Database.get<{ items: IComments[] }>(props.database, Const.COMMENTS, "0").then(r => {
+  Database.get<{ items: IComment[] }>(props.database, Const.COMMENTS, "0").then(r => {
     comments.value = r.items;
   });
 });
@@ -54,7 +54,7 @@ const findFromComments = (target: any, callback: any) => {
   callback(comment);
 };
 
-function onAutocompleteSelected(comment: IComments) {
+function onAutocompleteSelected(comment: IComment) {
   formData.value.cost = comment.cost;
 }
 
@@ -67,7 +67,7 @@ function confirmSubmit() {
   Utils.Forms.formValidator(
     formInst.value,
     async () => {
-      props.data.items[props.currM].items[props.index] = formData.value;
+      props.data.items[props.currM].balance[props.index] = formData.value;
       await Database.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY);
       isShowDialog.value = !isShowDialog.value;
     },

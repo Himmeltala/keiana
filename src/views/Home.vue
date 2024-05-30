@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const database = await Database.create();
-const datetime = await Database.get<{ Y: string; M: string }>(database, Const.VIEW_DATE, "0");
+const datetime = await Database.get<ViewDate>(database, Const.VIEW_DATE, "0");
 const currY = ref(datetime.Y);
 const currM = ref(datetime.M);
 const data = ref(await Database.get<IRecord>(database, Const.RECORD, currY.value));
@@ -22,8 +22,8 @@ function calcRisingRate() {
 
   if (index !== -1) {
     if (!isFirst) {
-      data.value.items[keys[index - 1]].items.forEach(item => (lastMCost += item.cost));
-      data.value.items[keys[index]].items.forEach(item => (currMCost += item.cost));
+      data.value.items[keys[index - 1]].balance.forEach(i => (lastMCost += i.cost));
+      data.value.items[keys[index]].balance.forEach(i => (currMCost += i.cost));
     }
 
     const not0 = lastMCost !== 0;
@@ -37,7 +37,7 @@ function calcBalance() {
   if (!data?.value.items[currM.value]) return 0;
 
   let total = 0;
-  data.value.items[currM.value].items.forEach(item => (total += Number(item.cost)));
+  data.value.items[currM.value].balance.forEach(i => (total += Number(i.cost)));
   data.value.items[currM.value].surplus = Number(
     (data.value.items[currM.value].budget - total).toFixed(2)
   );
@@ -52,7 +52,7 @@ function calcOutcome() {
   if (!data?.value.items[currM.value]) return 0;
 
   let total = 0;
-  data.value.items[currM.value].items.forEach(item => (total += Number(item.cost)));
+  data.value.items[currM.value].balance.forEach(i => (total += Number(i.cost)));
 
   return total;
 }
@@ -170,13 +170,13 @@ async function onDeletedR() {
         </div>
       </div>
       <div class="mt-4">
-        <el-result v-if="!data?.items[currM]?.items?.length" class="mt-20" icon="info" title="提示">
+        <el-result v-if="!data?.items[currM]?.balance?.length" class="mt-20" icon="info" title="提示">
           <template #sub-title>
             <p>没有收支记录</p>
           </template>
         </el-result>
         <el-dropdown
-          v-for="(value, index) in data?.items[currM]?.items"
+          v-for="(value, index) in data?.items[currM]?.balance"
           v-else
           class="w-100% bg-bg-overlay p-4 rd-2 mt-2"
           trigger="click">

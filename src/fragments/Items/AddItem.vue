@@ -8,7 +8,8 @@ const props = defineProps({
     type: Object as PropType<IDBDatabase>
   },
   data: {
-    type: Object as PropType<IRecord>
+    type: Object as PropType<IRecord>,
+    required: true
   },
   currY: {
     type: String,
@@ -21,7 +22,7 @@ const props = defineProps({
 });
 
 const dialog = ref(false);
-const formData = ref<IItem>({
+const formData = ref<IBalance>({
   cost: 100,
   text: "",
   type: "支"
@@ -34,10 +35,10 @@ const formRule = ref<FormRules>({
     { min: 1, max: 50, message: "长度在1~50个字符之间", trigger: "blur" }
   ]
 });
-const comments = ref<IComments[]>([]);
+const comments = ref<IComment[]>([]);
 
 onMounted(() => {
-  Database.get<{ items: IComments[] }>(props.database, Const.COMMENTS, "0").then(r => {
+  Database.get<{ items: IComment[] }>(props.database, Const.COMMENTS, "0").then(r => {
     comments.value = r.items;
   });
 });
@@ -46,7 +47,7 @@ function confirmSubmit() {
   Utils.Forms.formValidator(
     formInst.value,
     async () => {
-      props.data.items[props.currM].items.push({ ...formData.value });
+      props.data.items[props.currM].balance.push({ ...formData.value });
       await Database.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY);
       dialog.value = !dialog.value;
     },
@@ -61,7 +62,7 @@ const findFromComments = (target: any, callback: any) => {
   callback(comment);
 };
 
-function onAutocompleteSelected(comment: IComments) {
+function onAutocompleteSelected(comment: IComment) {
   formData.value.text = comment.value;
   formData.value.cost = comment.cost;
   formData.value.type = comment.type;

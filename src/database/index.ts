@@ -20,7 +20,7 @@ export namespace Database {
         const comments = db.createObjectStore(Const.COMMENTS, { keyPath: "id" });
         const viewDate = db.createObjectStore(Const.VIEW_DATE, { keyPath: "id" });
 
-        record.add({ id: "2024", items: { "1": { items: [], surplus: 0, budget: 0 } } });
+        record.add({ id: "2024", items: { "1": { balance: [], surplus: 0, budget: 0 } } });
         comments.add({ id: "0", items: [{ value: "生活费", cost: 1800, type: "支" }] });
         viewDate.add({ id: "0", Y: "2024", M: "1" });
       };
@@ -123,14 +123,18 @@ export namespace Database {
         };
       } else {
         const req = store.openCursor();
+        const arr: T[] = [];
 
         req.onsuccess = function(event) {
           // @ts-ignore
           const cursor = event.target.result;
           if (cursor) {
-            resolve(cursor.value);
+            arr.push(cursor.value);
             cursor.continue();
           }
+
+          // @ts-ignore
+          resolve(arr);
         };
 
         req.onerror = function() {

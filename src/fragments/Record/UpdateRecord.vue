@@ -8,7 +8,7 @@ const props = defineProps({
     type: Object as PropType<IDBDatabase>
   },
   data: {
-    type: Object,
+    type: Object as PropType<IRecord>,
     required: true
   },
   currM: {

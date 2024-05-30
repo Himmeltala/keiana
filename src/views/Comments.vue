@@ -3,8 +3,8 @@ import { ChatDotRound, Coin } from "@element-plus/icons-vue";
 import type { FormInstance, FormRules } from "element-plus";
 
 const database = await Database.create();
-const data = ref(await Database.get<{ items: IComments[] }>(database, Const.COMMENTS, "0"));
-const editCommentsRow = ref<IComments>();
+const data = ref(await Database.get<{ items: IComment[] }>(database, Const.COMMENTS, "0"));
+const editCommentsRow = ref<IComment>();
 const delCommentsDialog = ref(false);
 const commentsEditType = ref<"新增" | "更新">("新增");
 const commentsEditDialog = ref(false);
@@ -24,7 +24,7 @@ const formRule = ref<FormRules>({
     { required: true, message: "输入收支类型！", trigger: "blur" }
   ]
 });
-const formData = ref<IComments>({
+const formData = ref<IComment>({
   text: "",
   cost: 100,
   type: "支"
@@ -95,12 +95,12 @@ const filterType = (value: string, row: any) => {
   return row.type === value;
 };
 
-function beforeCloseComments(scope: IComments) {
+function beforeCloseComments(scope: IComment) {
   editCommentsRow.value = scope;
   delCommentsDialog.value = !delCommentsDialog.value;
 }
 
-function beforeUpdateComments(scope: IComments) {
+function beforeUpdateComments(scope: IComment) {
   commentsEditType.value = "更新";
   editCommentsRow.value = scope;
   formData.value.text = scope.value;

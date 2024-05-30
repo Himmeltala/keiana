@@ -6,7 +6,8 @@ const props = defineProps({
     type: Object as PropType<IDBDatabase>
   },
   data: {
-    type: Object
+    type: Object as PropType<IRecord>,
+    required: true
   },
   value: {
     type: Object,
@@ -29,7 +30,7 @@ const props = defineProps({
 const isShowDialog = ref(false);
 
 async function confirmSubmit() {
-  props.data.items[props.currM].items.splice(props.index, 1);
+  props.data.items[props.currM].balance.splice(props.index, 1);
   await Database.put(props.database, Const.RECORD, Utils.Objects.raw(props.data), props.currY);
   isShowDialog.value = !isShowDialog.value;
 }
@@ -43,13 +44,13 @@ async function confirmSubmit() {
     <el-dialog v-model="isShowDialog" append-to-body title="删除收支提示" width="90%">
       <el-form ref="formInst" hide-required-asterisk label-position="left" status-icon>
         <el-form-item label="备注" prop="text">
-          {{ data.items[currM].items[index].text }}
+          {{ data.items[currM].balance[index].text }}
         </el-form-item>
         <el-form-item label="金额" prop="cost">
-          {{ data.items[currM].items[index].cost }}
+          {{ data.items[currM].balance[index].cost }}
         </el-form-item>
         <el-form-item label="类型" prop="type">
-          <el-radio-group v-model="data.items[currM].items[index].type">
+          <el-radio-group v-model="data.items[currM].balance[index].type">
             <el-radio v-for="i in ['支', '收']" :label="i" :value="i" disabled></el-radio>
           </el-radio-group>
         </el-form-item>

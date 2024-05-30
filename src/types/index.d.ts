@@ -1,4 +1,4 @@
-declare interface IComments {
+declare interface IComment {
   value?: string;
   type?: "支" | "收";
   text?: string;
@@ -6,7 +6,7 @@ declare interface IComments {
   id?: string;
 }
 
-declare interface IItem {
+declare interface IBalance {
   cost?: number;
   text?: string;
   type?: "支" | "收";
@@ -15,10 +15,15 @@ declare interface IItem {
 declare interface IMonth {
   surplus?: number;
   budget?: number;
-  items?: IItem[];
+  balance?: IBalance[];
 }
 
 declare type IRecord = {
   id: string;
   items: Record<string, IMonth>;
 };
+
+declare type ViewDate = {
+  Y: string;
+  M: string
+}
