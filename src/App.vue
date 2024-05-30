@@ -1,7 +1,7 @@
 <script lang="ts" setup></script>
 
 <template>
-  <div class="p-4 bg-bg-page min-h-100vh">
+  <div class="p-4 bg-bg-page max-h-92vh overflow-auto">
     <RouterView v-slot="{ Component }">
       <template v-if="Component">
         <Suspense>
@@ -10,4 +10,5 @@
       </template>
     </RouterView>
   </div>
+  <div class="min-h-8vh"></div>
 </template>

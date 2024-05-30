@@ -54,12 +54,6 @@ export default defineConfig({
       }
     }
   },
-  rules: [
-    [
-      /^flow-(auto|hidden|inherit|initial|overlay|revert|scroll|unset|visible)$/,
-      ([, d]) => ({ overflow: `${d}` })
-    ]
-  ],
   shortcuts: [
     // flex
     [

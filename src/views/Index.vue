@@ -6,17 +6,15 @@ const currM = ref(datetime.M);
 const data = ref(await Database.get<IRecord>(database, Const.RECORD, currY.value));
 const MList = ref(Object.keys(data.value.items));
 const YList = ref<any[]>(await Database.keys(database, Const.RECORD));
-
-const isDrawer = ref(false);
-
+const drawer = ref(false);
 const risingRate = ref(0);
 
 function calcRisingRate() {
   if (!data?.value.items[currM.value]) return 0;
 
-  let rate = 0;
-  let lastMCost = 0,
-    currMCost = 0;
+  let rate: number;
+  let lastMCost = 0;
+  let currMCost = 0;
 
   const keys = MList.value.sort((a, b) => Number(a) - Number(b));
   const index = keys.findIndex(item => item === currM.value);
@@ -30,20 +28,18 @@ function calcRisingRate() {
 
     const not0 = lastMCost !== 0;
     rate = not0 ? (((currMCost - lastMCost) / lastMCost) * 100 * 10) / 10 : 0;
-  } else {
-    rate = 0;
-  }
+  } else rate = 0;
 
   return rate;
 }
 
-function calcCurrMBalance() {
+function calcBalance() {
   if (!data?.value.items[currM.value]) return 0;
 
-  let totalCost = 0;
-  data.value.items[currM.value].items.forEach(item => (totalCost += Number(item.cost)));
+  let total = 0;
+  data.value.items[currM.value].items.forEach(item => (total += Number(item.cost)));
   data.value.items[currM.value].surplus = Number(
-    (data.value.items[currM.value].budget - totalCost).toFixed(2)
+    (data.value.items[currM.value].budget - total).toFixed(2)
   );
   Database.put(database, Const.RECORD, Utils.Objects.raw(data.value), currY.value).then(() => {
     risingRate.value = calcRisingRate();
@@ -55,43 +51,48 @@ function calcCurrMBalance() {
 function calcOutcome() {
   if (!data?.value.items[currM.value]) return 0;
 
-  let totalCost = 0;
-  data.value.items[currM.value].items.forEach(item => (totalCost += Number(item.cost)));
+  let total = 0;
+  data.value.items[currM.value].items.forEach(item => (total += Number(item.cost)));
 
-  return totalCost;
+  return total;
 }
 
-async function onCurrYChange() {
-  data.value = await Database.get(database, Const.RECORD, currY.value);
-  MList.value = Object.keys(data.value.items);
-  currM.value = MList.value[0];
+function onCurrYChange() {
+  Database.put(database, Const.VIEW_DATE, { id: "0", Y: currY.value, M: currM.value }, "0");
+  Database.get<IRecord>(database, Const.RECORD, currY.value).then(_data => {
+    data.value = _data;
+    MList.value = Object.keys(data.value.items);
+    currM.value = MList.value[0];
+  });
 }
 
 function onCurrMChange() {
+  Database.put(database, Const.VIEW_DATE, { id: "0", Y: currY.value, M: currM.value }, "0");
 }
 
 async function onCreatedR() {
-  data.value = await Database.get(database, Const.RECORD, currY.value);
-  MList.value = Object.keys(data.value.items);
+  Database.get<IRecord>(database, Const.RECORD, currY.value).then(_data => {
+    data.value = _data;
+    MList.value = Object.keys(data.value.items);
+  });
 }
 
 async function onDeletedR() {
   const nextM = Utils.deleteAndReturnNext(MList.value, currM.value);
   if (nextM) {
     delete data.value.items[currM.value];
-    await Database.put(database, Const.RECORD, Utils.Objects.raw(data.value), currY.value);
-    currM.value = String(nextM);
-    await Database.put(database, Const.VIEW_DATE, { id: "0", Y: currY.value, M: currM.value }, "0");
-  } else {
-    ElMessage.error("至少保留一条记录");
-  }
+    Database.put(database, Const.RECORD, Utils.Objects.raw(data.value), currY.value).then(() => {
+      currM.value = String(nextM);
+      Database.put(database, Const.VIEW_DATE, { id: "0", Y: currY.value, M: currM.value }, "0");
+    });
+  } else ElMessage.error("至少保留一条记录");
 }
 </script>
 
 <template>
   <div class="main">
     <div class="f-c-b">
-      <el-button plain round size="small" @click="isDrawer = !isDrawer">
+      <el-button plain round size="small" @click="drawer = !drawer">
         <template #icon>
           <div class="i-tabler-menu"></div>
         </template>
@@ -105,42 +106,31 @@ async function onDeletedR() {
         <el-option v-for="item in MList" :key="item + '月'" :label="item + '月'" :value="item" />
       </el-select>
     </div>
-    <div class="f-c-e mt-4">
-      <el-dropdown trigger="click">
-        <el-button plain round size="small">
-          <template #icon>
-            <div class="i-tabler-dots"></div>
-          </template>
-        </el-button>
-        <template #dropdown>
-          <div class="m-2">
-            <el-popconfirm
-              cancel-button-text="取消"
-              confirm-button-text="确定"
-              title="确定删除该记录？"
-              @confirm="onDeletedR">
-              <template #reference>
-                <el-button class="mb-2" size="small" text type="danger">删除记录</el-button>
-              </template>
-            </el-popconfirm>
-            <CreateRecord
-              :curr-m="currM"
-              :curr-y="currY"
-              :data="data"
-              :database="database"
-              :m-list="MList"
-              class="mb-2"
-              @on-created="onCreatedR" />
-            <UpdateRecord
-              :curr-m="currM"
-              :curr-y="currY"
-              :data="data"
-              :database="database"
-              class="mb-2" />
-            <AddItem :curr-m="currM" :curr-y="currY" :data="data" :database="database" />
+    <div class="f-c-b my-4">
+      <el-popconfirm
+        cancel-button-text="取消"
+        confirm-button-text="确定"
+        title="确定删除该记录？"
+        @confirm="onDeletedR">
+        <template #reference>
+          <div>
+            <el-button size="small" text type="danger">删除记录</el-button>
           </div>
         </template>
-      </el-dropdown>
+      </el-popconfirm>
+      <CreateRecord
+        :curr-m="currM"
+        :curr-y="currY"
+        :data="data"
+        :database="database"
+        :m-list="MList"
+        @on-created="onCreatedR" />
+      <UpdateRecord
+        :curr-m="currM"
+        :curr-y="currY"
+        :data="data"
+        :database="database" />
+      <AddItem :curr-m="currM" :curr-y="currY" :data="data" :database="database" />
     </div>
     <div class="mt-2">
       <div>
@@ -153,10 +143,10 @@ async function onDeletedR() {
             </span>
             <span class="text-text-secondary mr-1">，剩余</span>
             <span v-show="data?.items[currM]?.surplus >= 0" class="text-green">
-              {{ calcCurrMBalance() }}
+              {{ calcBalance() }}
             </span>
             <span v-show="data?.items[currM]?.surplus < 0" class="text-red">
-              {{ calcCurrMBalance() }}
+              {{ calcBalance() }}
             </span>
           </div>
         </div>
@@ -224,7 +214,7 @@ async function onDeletedR() {
       </div>
     </div>
   </div>
-  <el-drawer v-model="isDrawer" :with-header="false" direction="ltr" size="70%">
+  <el-drawer v-model="drawer" :with-header="false" direction="ltr" size="70%">
     <Drawer />
   </el-drawer>
 </template>
