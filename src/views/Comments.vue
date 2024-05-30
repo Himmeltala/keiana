@@ -120,10 +120,7 @@ function beforeCreateRemark() {
 
 <template>
   <div>
-    <div class="f-c-s">
-      <div class="i-tabler-arrow-left" @click="$router.push('/')"></div>
-    </div>
-    <div class="my-5">
+    <div class="mb-5">
       <div>我的备注</div>
       <div class="text-0.8rem text-text-secondary">红色代表支出，绿色代表收入</div>
     </div>

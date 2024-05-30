@@ -34,9 +34,6 @@ function delDatabase() {
     <el-upload :auto-upload="false" :limit="1" :on-change="importJson" class="mb-5">
       <el-button plain round type="success">导入数据</el-button>
     </el-upload>
-    <div class="mb-5">
-      <el-button plain round type="warning" @click="$router.push('/comments')">管理备注</el-button>
-    </div>
     <div>
       <el-popconfirm title="确定清除数据？" @confirm="delDatabase">
         <template #reference>

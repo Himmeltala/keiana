@@ -4,13 +4,18 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "Index",
-      component: () => import("@/views/Index.vue")
+      name: "首页",
+      component: () => import("@/views/Home.vue")
     },
     {
       path: "/comments",
-      name: "Comments",
+      name: "备注",
       component: () => import("@/views/Comments.vue")
+    },
+    {
+      path: "/infographic",
+      name: "统计",
+      component: () => import("@/views/Infographic.vue")
     }
   ],
   history: createWebHashHistory()
