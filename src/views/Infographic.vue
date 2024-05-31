@@ -87,21 +87,21 @@ function calcCost(balances: IBalance[]) {
 
 <template>
   <div>
-    <div class="mb-2">
+    <div class="mb-4">
       <div>收支统计</div>
       <div class="text-0.8rem text-text-secondary">统计收支情况</div>
     </div>
     <div class="mb-4 f-c-b flex-nowrap">
       <div class="flex-basis-50% max-w-50%">
-        <div class="text-0.8rem">总预算 ({{ Object.keys(data.items).length }})</div>
+        <div class="text-0.8rem">预算 ({{ Object.keys(data.items).length }})</div>
         <div class="text-gray">{{ calcTotalBudget(data.items) }}</div>
       </div>
       <div class="flex-basis-50% max-w-50%">
-        <div class="text-0.8rem">总支出 ({{ countElemsLen(grouped["支"] || []) }})</div>
+        <div class="text-0.8rem">支出 ({{ countElemsLen(grouped["支"] || []) }})</div>
         <div class="text-red">{{ calcTotalCost(grouped["支"] || []) }}</div>
       </div>
       <div class="flex-basis-50% max-w-50%">
-        <div class="text-0.8rem">总收入 ({{ countElemsLen(grouped["收"] || []) }})</div>
+        <div class="text-0.8rem">收入 ({{ countElemsLen(grouped["收"] || []) }})</div>
         <div class="text-green">{{ calcTotalCost(grouped["收"] || []) }}</div>
       </div>
     </div>

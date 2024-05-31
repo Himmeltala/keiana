@@ -46,7 +46,7 @@ function handleDelete() {
       @confirm="handleDelete">
       <template #reference>
         <div>
-          <el-button plain size="small" type="danger">删除记录</el-button>
+          <el-button plain round size="small" type="danger">删除记录</el-button>
         </div>
       </template>
     </el-popconfirm>
