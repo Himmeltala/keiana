@@ -10,12 +10,19 @@ const MList = ref(Object.keys(data.value.items));
 const YList = ref<string[]>(await Database.keys(database, Const.RECORD));
 const risingRate = ref(0);
 
-function calcRisingRate() {
+function calcSurplusTotal(data: IBalance[]) {
+  let total = 0;
+  data.forEach(item => (total += Number(item.cost)));
+  return total;
+}
+
+
+function calcGrowthRate() {
   if (!data?.value.items[currM.value]) return 0;
 
-  let rate: number;
-  let lastMCost = 0;
-  let currMCost = 0;
+  let result: number;
+  let lCost = 0;
+  let cCost = 0;
 
   const keys = MList.value.sort((a, b) => Number(a) - Number(b));
   const index = keys.findIndex(item => item === currM.value);
@@ -23,27 +30,26 @@ function calcRisingRate() {
 
   if (index !== -1) {
     if (!isFirst) {
-      data.value.items[keys[index - 1]].balance.forEach(i => (lastMCost += i.cost));
-      data.value.items[keys[index]].balance.forEach(i => (currMCost += i.cost));
+      data.value.items[keys[index - 1]].balance.forEach(item => lCost += Number(item.cost));
+      data.value.items[keys[index]].balance.forEach(item => cCost += Number(item.cost));
     }
 
-    const not0 = lastMCost !== 0;
-    rate = not0 ? (((currMCost - lastMCost) / lastMCost) * 100 * 10) / 10 : 0;
-  } else rate = 0;
-
-  return rate;
+    result = lCost !== 0 ? (((cCost - lCost) / lCost) * 100 * 10) / 10 : 0;
+  } else {
+    result = 0;
+  }
+  return result;
 }
 
-function calcBalance() {
+function calcSurplus() {
   if (!data?.value.items[currM.value]) return 0;
+  const total = calcSurplusTotal(data.value.items[currM.value].balance);
 
-  let total = 0;
-  data.value.items[currM.value].balance.forEach(i => (total += Number(i.cost)));
   data.value.items[currM.value].surplus = Number(
     (data.value.items[currM.value].budget - total).toFixed(2)
   );
   Database.put(database, Const.RECORD, Utils.Objects.raw(data.value), currY.value).then(() => {
-    risingRate.value = calcRisingRate();
+    risingRate.value = calcGrowthRate();
   });
 
   return data.value.items[currM.value].surplus;
@@ -51,11 +57,7 @@ function calcBalance() {
 
 function calcOutcome() {
   if (!data?.value.items[currM.value]) return 0;
-
-  let total = 0;
-  data.value.items[currM.value].balance.forEach(i => (total += Number(i.cost)));
-
-  return total;
+  return calcSurplusTotal(data.value.items[currM.value].balance);
 }
 
 function onCurrYChange() {
@@ -126,10 +128,10 @@ function onDeletedR(nextM: string) {
             </span>
             <span class="text-text-secondary mr-1">，剩余</span>
             <span v-show="data?.items[currM]?.surplus >= 0" class="text-green">
-              {{ calcBalance() }}
+              {{ calcSurplus() }}
             </span>
             <span v-show="data?.items[currM]?.surplus < 0" class="text-red">
-              {{ calcBalance() }}
+              {{ calcSurplus() }}
             </span>
           </div>
         </div>
