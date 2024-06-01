@@ -10,13 +10,6 @@ const MList = ref(Object.keys(data.value.items));
 const YList = ref<string[]>(await Database.keys(database, Const.RECORD));
 const risingRate = ref(0);
 
-function calcSurplusTotal(data: IBalance[]) {
-  let total = 0;
-  data.forEach(item => (total += Number(item.cost)));
-  return total;
-}
-
-
 function calcGrowthRate() {
   if (!data?.value.items[currM.value]) return 0;
 
@@ -41,13 +34,23 @@ function calcGrowthRate() {
   return result;
 }
 
+function calcOutAndInTotalCost(data: IBalance[]) {
+  let total = 0;
+  data.forEach(item => {
+    if (item.type === "收") {
+      total -= Number(item.cost);
+    } else {
+      total += Number(item.cost);
+    }
+  });
+  return total;
+}
+
 function calcSurplus() {
   if (!data?.value.items[currM.value]) return 0;
-  const total = calcSurplusTotal(data.value.items[currM.value].balance);
 
-  data.value.items[currM.value].surplus = Number(
-    (data.value.items[currM.value].budget - total).toFixed(2)
-  );
+  const total = calcOutAndInTotalCost(data.value.items[currM.value].balance);
+  data.value.items[currM.value].surplus = Number((data.value.items[currM.value].budget - total));
   Database.put(database, Const.RECORD, Utils.Objects.raw(data.value), currY.value).then(() => {
     risingRate.value = calcGrowthRate();
   });
@@ -55,9 +58,19 @@ function calcSurplus() {
   return data.value.items[currM.value].surplus;
 }
 
+function calcOutcomeTotalCost(data: IBalance[]) {
+  let total = 0;
+  data.forEach(item => {
+    if (item.type === "支") {
+      total += Number(item.cost);
+    }
+  });
+  return total;
+}
+
 function calcOutcome() {
   if (!data?.value.items[currM.value]) return 0;
-  return calcSurplusTotal(data.value.items[currM.value].balance);
+  return calcOutcomeTotalCost(data.value.items[currM.value].balance);
 }
 
 function onCurrYChange() {
@@ -128,10 +141,10 @@ function onDeletedR(nextM: string) {
             </span>
             <span class="text-text-secondary mr-1">，剩余</span>
             <span v-show="data?.items[currM]?.surplus >= 0" class="text-green">
-              {{ calcSurplus() }}
+              {{ calcSurplus().toFixed(2) }}
             </span>
             <span v-show="data?.items[currM]?.surplus < 0" class="text-red">
-              {{ calcSurplus() }}
+              {{ calcSurplus().toFixed(2) }}
             </span>
           </div>
         </div>
@@ -140,7 +153,7 @@ function onDeletedR(nextM: string) {
             <div class="i-tabler-map-south text-text-secondary mr-1"></div>
             <span class="text-text-secondary mr-1">支出</span>
             <span>
-              {{ calcOutcome() }}
+              {{ calcOutcome().toFixed(2) }}
             </span>
           </div>
           <span class="text-text-secondary mr-1">，增长</span>
