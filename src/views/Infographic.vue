@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useEcharts } from "@/hooks/use-echarts";
 
 const database = await Database.create();
 const datetime = await Database.get<ViewDate>(database, Const.VIEW_DATE, "0");
@@ -46,7 +47,7 @@ const calcTotalCost = (obj: any) => computed(() => {
   return recursiveSum(obj);
 });
 
-function countElemsLen(obj: any): number {
+function calcLength(obj: any): number {
   function recursiveCount(o: any): number {
     let total = 0;
     for (let key in o) {
@@ -80,6 +81,77 @@ function calcCost(balances: IBalance[]) {
   balances.forEach(i => (total += Number(i.cost)));
   return total;
 }
+
+const calcTotalSurplus = (items: IRecord["items"]) => computed(() => {
+  const budget = calcTotalBudget(items).value;
+  const outcome = calcTotalCost(grouped["支"] || []).value;
+  const income = calcTotalCost(grouped["收"] || []).value;
+  return budget - outcome + income;
+});
+
+const outcomeChart = ref(null);
+const incomeChart = ref(null);
+
+function formatData(data: any) {
+  const result = [];
+  for (const [key, value] of Object.entries(data)) {
+    result.push({
+      value: calcCost(value as any),
+      name: key
+    });
+  }
+  return result;
+}
+
+onMounted(() => {
+  useEcharts({
+    dom: outcomeChart.value,
+    options: {
+      legend: {
+        orient: "vertical",
+        left: "left",
+        textStyle: {
+          color: "#E5EAF3"
+        }
+      },
+      series: [
+        {
+          label: {
+            show: false
+          },
+          center: ["65%", "50%"],
+          type: "pie",
+          radius: "50%",
+          data: formatData(grouped["支"])
+        }
+      ]
+    }
+  });
+
+  useEcharts({
+    dom: incomeChart.value,
+    options: {
+      legend: {
+        orient: "vertical",
+        left: "left",
+        textStyle: {
+          color: "#E5EAF3"
+        }
+      },
+      series: [
+        {
+          label: {
+            show: false
+          },
+          center: ["65%", "50%"],
+          type: "pie",
+          radius: "50%",
+          data: formatData(grouped["收"])
+        }
+      ]
+    }
+  });
+});
 </script>
 
 <template>
@@ -89,47 +161,52 @@ function calcCost(balances: IBalance[]) {
       <div class="text-0.8rem text-text-secondary">统计收支情况</div>
     </div>
     <div class="mb-4 f-c-b flex-wrap">
-      <div class="flex-basis-33.33% max-w-33.33% mb-2">
-        <div class="text-0.8rem">预算 ({{ Object.keys(data.items).length }})</div>
-        <div class="text-gray">{{ calcTotalBudget(data.items) }}</div>
+      <div class="flex-basis-33.33% max-w-33.33%">
+        <div class="text-0.8rem f-c-s">
+          <div class="i-tabler-coin mr-1"></div>
+          预算 ({{ Object.keys(data.items).length }})
+        </div>
+        <div class="text-gray text-0.8rem">{{ calcTotalBudget(data.items).value.toFixed(2) }}</div>
       </div>
       <div class="flex-basis-33.33% max-w-33.33%">
-        <div class="text-0.8rem">支出 ({{ countElemsLen(grouped["支"] || []) }})</div>
-        <div class="text-red">{{ calcTotalCost(grouped["支"] || []) }}</div>
+        <div class="text-0.8rem f-c-s">
+          <div class="i-tabler-minus mr-1"></div>
+          支出 ({{ calcLength(grouped["支"] || []) }})
+        </div>
+        <div class="text-red text-0.8rem">{{ calcTotalCost(grouped["支"] || []).value.toFixed(2) }}</div>
       </div>
       <div class="flex-basis-33.33% max-w-33.33%">
-        <div class="text-0.8rem">剩余</div>
-        <div class="text-gray">
+        <div class="text-0.8rem f-c-s">
+          <div class="i-tabler-plus-minus mr-1"></div>
+          剩余
+        </div>
+        <div class="text-gray text-0.8rem">
           {{
-            (calcTotalBudget(data.items).value - calcTotalCost(grouped["支"] || []).value).toFixed(2)
+            calcTotalSurplus(data.items).value.toFixed(2)
           }}
         </div>
       </div>
     </div>
-    <div v-for="(v, k) in grouped">
-      <div v-if="k === '支'">
-        <div>支出</div>
-        <div class="mt-2 f-c-b flex-wrap">
-          <div v-for="(v1, k1) in v" class="mb-2 flex-basis-50% max-w-50%">
-            <el-statistic
-              :precision="1"
-              :title="k1 + ' (' + v1.length + ')'"
-              :value="calcCost(v1)" />
-          </div>
-        </div>
-      </div>
-      <div v-if="k === '收'" class="mt-4">
-        <div>收入</div>
-        <div class="mt-2 f-c-b flex-wrap">
-          <div v-for="(v1, k1) in v" class="mb-2 flex-basis-50% max-w-50%">
-            <el-statistic
-              :precision="2"
-              :title="k1 + ' (' + v1.length + ')'"
-              :value="calcCost(v1)" />
-          </div>
+    <div class="text-1.2rem mb-2">支出</div>
+    <div class="mb-2 f-c-b flex-wrap">
+      <div v-for="(v, k) in grouped['支']" class="mb-2 flex-basis-50% max-w-50%">
+        <div>
+          <div class="text-0.8rem">{{ k + " (" + v.length + ")" }}</div>
+          <div class="text-0.8rem">{{ calcCost(v).toFixed(2) }}</div>
         </div>
       </div>
     </div>
+    <div ref="outcomeChart" style="width: 90vw; height: 50vh"></div>
+    <div class="text-1.2rem mb-2">收入</div>
+    <div class="mb-2 f-c-b flex-wrap">
+      <div v-for="(v, k) in grouped['收']" class="mb-2 flex-basis-50% max-w-50%">
+        <div>
+          <div class="text-0.8rem">{{ k + " (" + v.length + ")" }}</div>
+          <div class="text-0.8rem">{{ calcCost(v).toFixed(2) }}</div>
+        </div>
+      </div>
+    </div>
+    <div ref="incomeChart" style="width: 90vw; height: 50vh"></div>
   </div>
 </template>
 

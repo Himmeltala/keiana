@@ -134,7 +134,7 @@ function onDeletedR(nextM: string) {
         <div class="mb-2">数据</div>
         <div class="f-c-s text-text-regular text-0.8rem">
           <div class="f-c-c">
-            <div class="i-tabler-coin-yen text-text-secondary mr-1"></div>
+            <div class="i-tabler-coin text-text-secondary mr-1"></div>
             <span class="text-text-secondary mr-1">预算</span>
             <span>
               {{ data?.items[currM]?.budget }}
@@ -150,7 +150,7 @@ function onDeletedR(nextM: string) {
         </div>
         <div class="f-c-e text-text-regular text-0.8rem">
           <div class="f-c-c">
-            <div class="i-tabler-map-south text-text-secondary mr-1"></div>
+            <div class="i-tabler-minus text-text-secondary mr-1"></div>
             <span class="text-text-secondary mr-1">支出</span>
             <span>
               {{ calcOutcome().toFixed(2) }}

@@ -1,5 +1,11 @@
 import * as echarts from "echarts/core";
-import { DataZoomComponent, GridComponent, LegendComponent, TooltipComponent } from "echarts/components";
+import {
+  DataZoomComponent,
+  GridComponent,
+  LegendComponent,
+  TitleComponent,
+  TooltipComponent
+} from "echarts/components";
 import { LineChart, PieChart, RadarChart } from "echarts/charts";
 import { CanvasRenderer } from "echarts/renderers";
 
@@ -11,14 +17,15 @@ echarts.use([
   RadarChart,
   CanvasRenderer,
   PieChart,
-  LineChart
+  LineChart,
+  TitleComponent
 ]);
 
 /**
  * 正常渲染图形
  */
 function rendering(dom: HTMLElement, options: any) {
-  const theChart = echarts.init(dom, options.mode || "light");
+  const theChart = echarts.init(dom, options.darkMode || false);
   theChart.setOption(options);
 }
 
@@ -26,11 +33,7 @@ function rendering(dom: HTMLElement, options: any) {
  * 渲染图表
  */
 export function useEcharts(config: { dom: HTMLElement; options?: any }) {
-  const options = {
-    tooltip: {
-      trigger: "item"
-    }
-  };
+  const options = {};
 
   rendering(config.dom, { ...options, ...config.options });
 }

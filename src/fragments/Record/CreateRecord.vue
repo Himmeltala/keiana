@@ -112,7 +112,8 @@ const keys = Array.from({ length: 12 }, (_, i) => ({ value: `${i + 1}`, label: `
             placeholder="选择一个年份"
             style="width: 100%"
             type="year"
-            value-format="YYYY" />
+            value-format="YYYY"
+          />
         </el-form-item>
         <el-form-item label="月份" prop="month">
           <el-select v-model="formData.month" class="w-100%">
@@ -121,6 +122,9 @@ const keys = Array.from({ length: 12 }, (_, i) => ({ value: `${i + 1}`, label: `
               :key="item.value"
               :label="item.label + '月'"
               :value="item.value" />
+            <template #prefix>
+              <div class="i-tabler-calendar"></div>
+            </template>
           </el-select>
         </el-form-item>
         <el-form-item label="预算" prop="budget">
