@@ -92,65 +92,72 @@ const calcTotalSurplus = (items: IRecord["items"]) => computed(() => {
 const outcomeChart = ref(null);
 const incomeChart = ref(null);
 
-function formatData(data: any) {
+function formatData(data: any, max = 36) {
   const result = [];
-  for (const [key, value] of Object.entries(data)) {
+  const entries = Object.entries(data).slice(0, max);
+
+  for (const [key, value] of entries) {
     result.push({
       value: calcCost(value as any),
       name: key
     });
   }
+
   return result;
 }
 
 onMounted(() => {
-  useEcharts({
-    dom: outcomeChart.value,
-    options: {
-      legend: {
-        orient: "vertical",
-        left: "left",
-        textStyle: {
-          color: "#E5EAF3"
-        }
-      },
-      series: [
-        {
-          label: {
-            show: false
-          },
-          center: ["65%", "50%"],
-          type: "pie",
-          radius: "50%",
-          data: formatData(grouped["支"])
-        }
-      ]
-    }
-  });
+  if (grouped["支"]) {
+    useEcharts({
+      dom: outcomeChart.value,
+      options: {
+        legend: {
+          orient: "vertical",
+          left: "left",
+          textStyle: {
+            color: "#E5EAF3"
+          }
+        },
+        series: [
+          {
+            label: {
+              show: false
+            },
+            center: ["65%", "50%"],
+            type: "pie",
+            radius: "50%",
+            data: formatData(grouped["支"])
+          }
+        ]
+      }
+    });
+  }
 
-  useEcharts({
-    dom: incomeChart.value,
-    options: {
-      legend: {
-        orient: "vertical",
-        left: "left",
-        textStyle: {
-          color: "#E5EAF3"
-        }
-      },
-      series: [
-        {
-          label: {
-            show: false
-          },
-          center: ["65%", "50%"],
-          type: "pie",
-          radius: "50%",
-          data: formatData(grouped["收"])
-        }
-      ]
-    }
-  });
+  if (grouped["收"]) {
+    useEcharts({
+      dom: incomeChart.value,
+      options: {
+        legend: {
+          orient: "vertical",
+          left: "left",
+          textStyle: {
+            color: "#E5EAF3"
+          }
+        },
+        series: [
+          {
+            label: {
+              show: false
+            },
+            center: ["65%", "50%"],
+            type: "pie",
+            radius: "50%",
+            data: formatData(grouped["收"])
+          }
+        ]
+      }
+    });
+  }
 });
 </script>
 
@@ -187,26 +194,30 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <div class="text-1.2rem mb-2">支出</div>
-    <div class="mb-2 f-c-b flex-wrap">
-      <div v-for="(v, k) in grouped['支']" class="mb-2 flex-basis-50% max-w-50%">
-        <div>
-          <div class="text-0.8rem">{{ k + " (" + v.length + ")" }}</div>
-          <div class="text-0.8rem">{{ calcCost(v).toFixed(2) }}</div>
+    <template v-if="grouped['支']">
+      <div class="text-1.2rem mb-2">支出</div>
+      <div class="mb-2 f-c-b flex-wrap">
+        <div v-for="(v, k) in grouped['支']" class="mb-2 flex-basis-50% max-w-50%">
+          <div>
+            <div class="text-0.8rem">{{ k + " (" + v.length + ")" }}</div>
+            <div class="text-0.8rem">{{ calcCost(v).toFixed(2) }}</div>
+          </div>
         </div>
       </div>
-    </div>
-    <div ref="outcomeChart" style="width: 90vw; height: 50vh"></div>
-    <div class="text-1.2rem mb-2">收入</div>
-    <div class="mb-2 f-c-b flex-wrap">
-      <div v-for="(v, k) in grouped['收']" class="mb-2 flex-basis-50% max-w-50%">
-        <div>
-          <div class="text-0.8rem">{{ k + " (" + v.length + ")" }}</div>
-          <div class="text-0.8rem">{{ calcCost(v).toFixed(2) }}</div>
+      <div ref="outcomeChart" style="width: 90vw; height: 50vh"></div>
+    </template>
+    <template v-if="grouped['收']">
+      <div class="text-1.2rem mb-2">收入</div>
+      <div class="mb-2 f-c-b flex-wrap">
+        <div v-for="(v, k) in grouped['收']" class="mb-2 flex-basis-50% max-w-50%">
+          <div>
+            <div class="text-0.8rem">{{ k + " (" + v.length + ")" }}</div>
+            <div class="text-0.8rem">{{ calcCost(v).toFixed(2) }}</div>
+          </div>
         </div>
       </div>
-    </div>
-    <div ref="incomeChart" style="width: 90vw; height: 50vh"></div>
+      <div ref="incomeChart" style="width: 90vw; height: 50vh"></div>
+    </template>
   </div>
 </template>
 
