@@ -10,6 +10,7 @@ declare interface IBalance {
   cost?: number;
   text?: string;
   type?: "支" | "收";
+  datetime?: Date;
 }
 
 declare interface IMonth {

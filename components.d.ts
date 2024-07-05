@@ -7,13 +7,14 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AddItem: typeof import('./src/fragments/Items/AddItem.vue')['default']
-    CreateRecord: typeof import('./src/fragments/Record/CreateRecord.vue')['default']
-    DeleteItem: typeof import('./src/fragments/Items/DeleteItem.vue')['default']
-    DeleteRecord: typeof import('./src/fragments/Record/DeleteRecord.vue')['default']
+    AddItem: typeof import('./src/fragments/AddItem.vue')['default']
+    Calculator: typeof import('./src/components/Calculator.vue')['default']
+    CreateRecord: typeof import('./src/fragments/CreateRecord.vue')['default']
+    DeleteItem: typeof import('./src/fragments/DeleteItem.vue')['default']
+    DeleteRecord: typeof import('./src/fragments/DeleteRecord.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    UpdateItem: typeof import('./src/fragments/Items/UpdateItem.vue')['default']
-    UpdateRecord: typeof import('./src/fragments/Record/UpdateRecord.vue')['default']
+    UpdateItem: typeof import('./src/fragments/UpdateItem.vue')['default']
+    UpdateRecord: typeof import('./src/fragments/UpdateRecord.vue')['default']
   }
 }

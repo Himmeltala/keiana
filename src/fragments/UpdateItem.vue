@@ -89,8 +89,8 @@ function confirmSubmit() {
             v-model="formData.text"
             :fetch-suggestions="findFromComments"
             :prefix-icon="ChatDotRound"
-            class="w-100%"
             placeholder="请输入备注"
+            style="width: 100%"
             @select="onAutocompleteSelected" />
         </el-form-item>
         <el-form-item label="花费" prop="cost">

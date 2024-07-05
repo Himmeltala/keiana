@@ -15,8 +15,8 @@ async function exportJson() {
     }
   ])], { type: "text/json" });
   const a = document.createElement("a");
-  const date = Utils.Dates.generateDate();
-  a.download = `${date.y}-${date.m}-${date.d}${date.h}${date.minute}${date.second}.json`;
+  const date = Utils.Dates.formatDate('YY-MM-DD-hh-mm-ss');
+  a.download = `${date}.json`;
   a.href = URL.createObjectURL(blob);
   a.click();
 }

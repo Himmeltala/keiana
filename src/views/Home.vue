@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import DeleteRecord from "@/fragments/Record/DeleteRecord.vue";
-import { Utils } from "@/utils";
-import Objects = Utils.Objects;
+import DeleteRecord from "@/fragments/DeleteRecord.vue";
 
 const database = await Database.create();
 const config = await Database.get<IConfig>(database, Const.DB_CONFIG, Const.DB_KEY_CONFIG);
@@ -78,7 +76,7 @@ function calcOutcome() {
 function onCurrYChange() {
   config.Y = currY.value;
   config.M = currM.value;
-  Database.put(database, Const.DB_CONFIG, Objects.raw(config), Const.DB_KEY_CONFIG);
+  Database.put(database, Const.DB_CONFIG, Utils.Objects.raw(config), Const.DB_KEY_CONFIG);
   Database.get<IRecord>(database, Const.DB_RECORD, currY.value).then(_data => {
     data.value = _data;
     MList.value = Object.keys(data.value.items);
@@ -89,7 +87,7 @@ function onCurrYChange() {
 function onCurrMChange() {
   config.Y = currY.value;
   config.M = currM.value;
-  Database.put(database, Const.DB_CONFIG, Objects.raw(config), Const.DB_KEY_CONFIG);
+  Database.put(database, Const.DB_CONFIG, Utils.Objects.raw(config), Const.DB_KEY_CONFIG);
 }
 
 async function onCreatedR(nextY: string) {
@@ -102,7 +100,7 @@ async function onCreatedR(nextY: string) {
       currM.value = MList.value[0];
       config.Y = currY.value;
       config.M = currM.value;
-      Database.put(database, Const.DB_CONFIG, Objects.raw(config), Const.DB_KEY_CONFIG);
+      Database.put(database, Const.DB_CONFIG, Utils.Objects.raw(config), Const.DB_KEY_CONFIG);
     });
   });
 }
@@ -111,7 +109,22 @@ function onDeletedR(nextM: string) {
   currM.value = nextM;
   config.Y = currY.value;
   config.M = currM.value;
-  Database.put(database, Const.DB_CONFIG, Objects.raw(config), Const.DB_KEY_CONFIG);
+  Database.put(database, Const.DB_CONFIG, Utils.Objects.raw(config), Const.DB_KEY_CONFIG);
+}
+
+function grouped(data: IRecord) {
+  const grouped: Record<string, IBalance[]> = {};
+
+  const balanceEntries = data?.items[currM.value]?.balance || [];
+  balanceEntries.forEach(entry => {
+    const date = Utils.Dates.formatDate("YY-MM-DD HH:mm:ss", String(entry.datetime)).split(" ")[0];
+    if (!grouped[date]) {
+      grouped[date] = [];
+    }
+    grouped[date].push(entry);
+  });
+
+  return grouped;
 }
 </script>
 
@@ -178,36 +191,34 @@ function onDeletedR(nextM: string) {
         </div>
       </div>
       <div>
-        <el-result v-if="!data?.items[currM]?.balance?.length" class="mt-20" icon="info" title="提示">
-          <template #sub-title>
-            <p>没有收支记录</p>
-          </template>
-        </el-result>
-        <el-dropdown
-          v-for="(value, index) in data?.items[currM]?.balance"
-          v-else
-          class="w-100% bg-bg-overlay p-4 rd-2 mt-2"
-          trigger="click">
-          <div class="w-100% f-c-b">
-            <div class="f-c-s">
-              <el-tag :type="value.type == '支' ? 'danger' : 'success'" class="mr-4" size="small">
-                {{ value.type }}
-              </el-tag>
-              <div>
-                {{ value.text }}
+        <div class="mb-4" v-for="(entries, date) in grouped(data)" :key="date">
+          <div class="mb-2 text-0.9rem text-text-secondary">{{ date }}</div>
+          <el-dropdown
+            v-for="(value, index) in entries"
+            :key="index"
+            class="w-100% bg-bg-overlay p-4 rd-2 mt-2"
+            trigger="click">
+            <div class="w-100% f-c-b">
+              <div class="f-c-s">
+                <el-tag :type="value.type == '支' ? 'danger' : 'success'" class="mr-4" size="small">
+                  {{ value.type }}
+                </el-tag>
+                <div>
+                  {{ value.text }}
+                </div>
               </div>
+              <div class="text-text-secondary">{{ value.cost }}</div>
             </div>
-            <div class="text-text-secondary">{{ value.cost }}</div>
-          </div>
-          <template #dropdown>
-            <div class="m-2">
-              <UpdateItem :curr-m="currM" :curr-y="currY" :data="data" :database="database"
-                          :index="index" :value="value" class="mb-2" />
-              <DeleteItem :curr-m="currM" :curr-y="currY" :data="data" :database="database"
-                          :index="index" :value="value" />
-            </div>
-          </template>
-        </el-dropdown>
+            <template #dropdown>
+              <div class="m-2">
+                <UpdateItem :curr-m="currM" :curr-y="currY" :data="data" :database="database"
+                            :index="index" :value="value" class="mb-2" />
+                <DeleteItem :curr-m="currM" :curr-y="currY" :data="data" :database="database"
+                            :index="index" :value="value" />
+              </div>
+            </template>
+          </el-dropdown>
+        </div>
       </div>
     </div>
   </div>

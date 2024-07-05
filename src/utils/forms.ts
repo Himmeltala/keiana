@@ -28,3 +28,7 @@ export const validateMoney = (rule: any, value: any, callback: any) => {
     }
   }, 20);
 };
+
+export function disabledDate(time: Date, Y: string, M: string) {
+  return !(time.getFullYear() === Number(Y) && time.getMonth() === Number(M) - 1 && time.getDate() >= 1 && time.getDate() <= 31);
+};
