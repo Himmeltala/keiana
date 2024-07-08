@@ -42,12 +42,21 @@ async function confirmSubmit() {
       删除收支
     </el-button>
     <el-dialog v-model="isShowDialog" append-to-body title="删除收支提示" width="90%">
-      <el-form ref="formInst" hide-required-asterisk label-position="left" status-icon>
+      <el-form ref="formInst" hide-required-asterisk label-position="left" label-width="auto" status-icon>
         <el-form-item label="备注" prop="text">
           {{ data.items[currM].balance[index].text }}
         </el-form-item>
         <el-form-item label="金额" prop="cost">
           {{ data.items[currM].balance[index].cost }}
+        </el-form-item>
+        <el-form-item label="日期时间" prop="datetime">
+          <el-date-picker
+            v-model="data.items[currM].balance[index].datetime"
+            disabled
+            placeholder="请输入日期时间"
+            style="width: 100%"
+            type="date"
+          />
         </el-form-item>
         <el-form-item label="类型" prop="type">
           <el-radio-group v-model="data.items[currM].balance[index].type">

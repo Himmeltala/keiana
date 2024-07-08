@@ -2,6 +2,7 @@
 import { ChatDotRound, Coin } from "@element-plus/icons-vue";
 import type { FormInstance, FormRules } from "element-plus";
 import { PropType } from "vue";
+import { disabledDate } from "@/utils/forms";
 
 const props = defineProps({
   database: {
@@ -36,6 +37,9 @@ const formRule = ref<FormRules>({
   text: [
     { required: true, message: "请输入收支备注", trigger: "blur" },
     { min: 1, max: 50, message: "长度在1~50个字符之间", trigger: "blur" }
+  ],
+  datetime: [
+    { required: true, message: "请输入日期时间", trigger: "change" }
   ]
 });
 const formData = ref<IBalance>({
@@ -83,18 +87,28 @@ function confirmSubmit() {
         :rules="formRule"
         hide-required-asterisk
         label-position="left"
+        label-width="auto"
         status-icon>
         <el-form-item label="备注" prop="text">
           <el-autocomplete
             v-model="formData.text"
             :fetch-suggestions="findFromComments"
             :prefix-icon="ChatDotRound"
-            placeholder="请输入备注"
+            placeholder="请输入收支备注"
             style="width: 100%"
             @select="onAutocompleteSelected" />
         </el-form-item>
         <el-form-item label="花费" prop="cost">
-          <el-input v-model.number="formData.cost" :prefix-icon="Coin" type="number" />
+          <el-input v-model.number="formData.cost" :prefix-icon="Coin" placeholder="请输入收支金额" type="number" />
+        </el-form-item>
+        <el-form-item label="日期时间" prop="datetime">
+          <el-date-picker
+            v-model="formData.datetime"
+            :disabled-date="(time:Date) => disabledDate(time, currY, currM)"
+            placeholder="请输入日期时间"
+            style="width: 100%"
+            type="date"
+          />
         </el-form-item>
         <el-form-item label="类型" prop="type">
           <el-radio-group v-model="formData.type">
