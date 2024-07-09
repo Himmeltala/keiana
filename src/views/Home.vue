@@ -124,7 +124,18 @@ function grouped(data: IRecord) {
     grouped[date].push(entry);
   });
 
-  return grouped;
+  const sortedGrouped: Record<string, IBalance[]> = {};
+  const sortedDates = Object.keys(grouped).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+
+  if (!config.itemAsc) {
+    sortedDates.reverse();
+  }
+
+  sortedDates.forEach(date => {
+    sortedGrouped[date] = grouped[date];
+  });
+
+  return sortedGrouped;
 }
 </script>
 

@@ -29,4 +29,5 @@ declare type IConfig = {
   M: string;
   budget: number;
   isChart: boolean;
+  itemAsc: boolean;
 }

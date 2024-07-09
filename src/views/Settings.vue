@@ -91,6 +91,9 @@ watch(formData, (value, oldValue, onCleanup) => {
           <el-form-item :label="formData.isChart ? '开启图表' : '关闭图表'">
             <el-switch v-model="formData.isChart" />
           </el-form-item>
+          <el-form-item :label="formData.itemAsc ? '收支升序' : '收支降序'">
+            <el-switch v-model="formData.itemAsc" />
+          </el-form-item>
         </el-form>
       </div>
     </div>
