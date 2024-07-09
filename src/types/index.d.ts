@@ -7,6 +7,7 @@ declare interface IComment {
 }
 
 declare interface IBalance {
+  id?: string;
   cost?: number;
   text?: string;
   type?: "支" | "收";

@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
+    "@types/crypto-js": "^4.2.2",
     "@vueuse/core": "^10.11.0",
+    "crypto-js": "^4.2.0",
     "echarts": "^5.5.0",
     "element-plus": "^2.7.6",
     "vue": "^3.4.30",

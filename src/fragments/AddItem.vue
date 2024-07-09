@@ -24,6 +24,7 @@ const props = defineProps({
 
 const dialog = ref(false);
 const formData = ref<IBalance>({
+  id: '',
   cost: 0,
   text: "",
   type: "支",
@@ -47,6 +48,7 @@ function confirmSubmit() {
   Utils.Forms.formValidator(
     formInst.value,
     async () => {
+      formData.value.id = Utils.generateRandomHash()
       props.data.items[props.currM].balance.push({ ...formData.value });
       await Database.put(props.database, Const.DB_RECORD, Utils.Objects.raw(props.data), props.currY);
       dialog.value = !dialog.value;

@@ -2,6 +2,8 @@ import * as DatesModule from "./dates";
 import * as FormsModule from "./forms";
 import * as ObjectsModule from "./objects";
 
+import CryptoJS from "crypto-js";
+
 export namespace Utils {
   export const Dates: typeof DatesModule = DatesModule;
   export const Forms: typeof FormsModule = FormsModule;
@@ -47,6 +49,21 @@ export namespace Utils {
     } else {
       return value + units[unitIndex];
     }
+  }
+
+  export function generateRandomString(length: number) {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  }
+
+  export function generateRandomHash() {
+    const randomString = generateRandomString(7);
+    return CryptoJS.SHA256(randomString).toString(CryptoJS.enc.Hex);
   }
 
 }

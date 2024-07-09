@@ -66,9 +66,14 @@ function confirmSubmit() {
   Utils.Forms.formValidator(
     formInst.value,
     async () => {
-      props.data.items[props.currM].balance[props.index] = formData.value;
-      await Database.put(props.database, Const.DB_RECORD, Utils.Objects.raw(props.data), props.currY);
-      isShowDialog.value = !isShowDialog.value;
+      const foundItem = props.data.items[props.currM].balance.findIndex(item => item.id === formData.value.id);
+      if (foundItem != -1) {
+        props.data.items[props.currM].balance[foundItem] = formData.value;
+        await Database.put(props.database, Const.DB_RECORD, Utils.Objects.raw(props.data), props.currY);
+        isShowDialog.value = !isShowDialog.value;
+      } else {
+        ElMessage.error("未找到更新的收支项");
+      }
     },
     () => {
       ElMessage.error("检查输入的值是否正确");
