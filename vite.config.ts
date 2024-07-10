@@ -7,7 +7,7 @@ import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import UnoCSS from "unocss/vite";
 
 export default defineConfig({
-  base: "/tallypad/dist",
+  base: "/moneymap/dist",
   plugins: [
     vue(),
     vueJsx(),

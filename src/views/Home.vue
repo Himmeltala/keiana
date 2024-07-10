@@ -112,7 +112,7 @@ function onDeletedR(nextM: string) {
   Database.put(database, Const.DB_CONFIG, Utils.Objects.raw(config), Const.DB_KEY_CONFIG);
 }
 
-function grouped(data: IRecord) {
+function groupData(data: IRecord) {
   const grouped: Record<string, IBalance[]> = {};
 
   const balanceEntries = data?.items[currM.value]?.balance || [];
@@ -202,7 +202,7 @@ function grouped(data: IRecord) {
         </div>
       </div>
       <div>
-        <div class="mb-4" v-for="(entries, date) in grouped(data)" :key="date">
+        <div v-for="(entries, date) in groupData(data)" :key="date" class="mb-4">
           <div class="mb-2 text-0.9rem text-text-secondary">{{ date }}</div>
           <el-dropdown
             v-for="(value, index) in entries"

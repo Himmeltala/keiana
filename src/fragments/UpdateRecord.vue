@@ -37,12 +37,18 @@ function openUpdateDialog() {
 }
 
 function confirmSubmit() {
-  Utils.Forms.formValidator(
-    formInst.value,
+  const { data, currM, database, currY } = props;
+  const { formValidator } = Utils.Forms;
+  const { budget } = formData;
+  const { value: formInstValue } = formInst;
+  const { value: dialogValue } = dialog;
+
+  formValidator(
+    formInstValue,
     async () => {
-      props.data.items[props.currM].budget = Number(formData.budget);
-      await Database.put(props.database, Const.DB_RECORD, Utils.Objects.raw(props.data), props.currY);
-      dialog.value = !dialog.value;
+      data.items[currM].budget = Number(budget);
+      await Database.put(database, Const.DB_RECORD, Utils.Objects.raw(data), currY);
+      dialog.value = !dialogValue;
     },
     () => {
       ElMessage.error("检查输入的值是否正确");

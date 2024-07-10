@@ -30,9 +30,17 @@ const props = defineProps({
 const isShowDialog = ref(false);
 
 async function confirmSubmit() {
-  props.data.items[props.currM].balance.splice(props.index, 1);
-  await Database.put(props.database, Const.DB_RECORD, Utils.Objects.raw(props.data), props.currY);
-  isShowDialog.value = !isShowDialog.value;
+  const { data, currM, value, database, currY } = props;
+  const balanceItems = data.items[currM].balance;
+  const foundItemIndex = balanceItems.findIndex(item => item.id === value.id);
+
+  if (foundItemIndex !== -1) {
+    balanceItems.splice(foundItemIndex, 1);
+    await Database.put(database, Const.DB_RECORD, Utils.Objects.raw(data), currY);
+    isShowDialog.value = !isShowDialog.value;
+  } else {
+    ElMessage.error("未找到更新的收支项");
+  }
 }
 </script>
 

@@ -24,11 +24,7 @@ const formRule = ref<FormRules>({
     { required: true, message: "输入收支类型！", trigger: "blur" }
   ]
 });
-const formData = ref<IComment>({
-  text: "",
-  cost: 100,
-  type: "支"
-});
+const formData = ref<IComment>({ text: "", cost: 100, type: "支" });
 
 function addComments() {
   Utils.Forms.formValidator(
@@ -55,12 +51,12 @@ function addComments() {
 }
 
 function updateComments() {
-  const index = data.value.items?.findIndex(item => item.value === editCommentsRow.value.value);
-  if (index >= 0) {
+  const foundIndex = data.value.items?.findIndex(item => item.value === editCommentsRow.value.value);
+  if (foundIndex >= 0) {
     Utils.Forms.formValidator(
       formInst.value,
       () => {
-        data.value.items[index] = {
+        data.value.items[foundIndex] = {
           value: formData.value.text,
           cost: formData.value.cost,
           type: formData.value.type
@@ -81,9 +77,9 @@ function updateComments() {
 }
 
 function confirmDelComments() {
-  const index = data.value.items?.findIndex(item => item.value === editCommentsRow.value.value);
-  if (index >= 0) {
-    data.value.items.splice(index, 1);
+  const foundIndex = data.value.items?.findIndex(item => item.value === editCommentsRow.value.value);
+  if (foundIndex >= 0) {
+    data.value.items.splice(foundIndex, 1);
     Database.put(database, Const.DB_COMMENTS, Utils.Objects.raw(data.value), Const.DB_KEY_COMMENTS);
     delCommentsDialog.value = !delCommentsDialog.value;
   } else {

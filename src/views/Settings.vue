@@ -15,7 +15,7 @@ async function exportJson() {
     }
   ])], { type: "text/json" });
   const a = document.createElement("a");
-  const date = Utils.Dates.formatDate('YY-MM-DD-hh-mm-ss');
+  const date = Utils.Dates.formatDate("YY-MM-DD-hh-mm-ss");
   a.download = `${date}.json`;
   a.href = URL.createObjectURL(blob);
   a.click();

@@ -5,22 +5,21 @@ const database = await Database.create();
 const config = await Database.get<IConfig>(database, Const.DB_CONFIG, Const.DB_KEY_CONFIG);
 const data = ref(await Database.get<IRecord>(database, Const.DB_RECORD, config.Y));
 
-function group(data: any) {
-  const grouped: { [type: string]: { [text: string]: any[] } } = {};
+type GroupedVal = { [text: string]: IBalance[] }
+type Grouped = { [name in "支" | "收"]?: GroupedVal }
+
+function groupByType(data: any) {
+  const grouped: Grouped = {};
 
   for (const key in data.items) {
     if (data.items.hasOwnProperty(key)) {
-      const item = data.items[key];
-      if (item.balance) {
-        item.balance.forEach((entry: any) => {
-          const { type, text } = entry;
-          if (!grouped[type]) {
-            grouped[type] = {};
-          }
-          if (!grouped[type][text]) {
-            grouped[type][text] = [];
-          }
-          grouped[type][text].push(entry);
+      const balances = data.items[key].balance;
+      if (balances) {
+        balances.forEach((balance: IBalance) => {
+          const { type, text } = balance;
+          grouped[type] = grouped[type] || {};
+          grouped[type][text] = grouped[type][text] || [];
+          grouped[type][text].push(balance);
         });
       }
     }
@@ -29,81 +28,59 @@ function group(data: any) {
   return grouped;
 }
 
-const calcTotalCost = (obj: any) => computed(() => {
-  function recursiveSum(o: any): number {
-    let total = 0;
-    for (let key in o) {
-      if (Array.isArray(o[key])) {
-        total += o[key].reduce((sum: number, item: IBalance) => {
+const calcTotalCost = (obj: GroupedVal) => {
+  function recursiveSum(o: GroupedVal): number {
+    return Object.values(o).reduce((total, value) => {
+      if (Array.isArray(value)) {
+        return total + value.reduce((sum: number, item: IBalance) => {
           return sum + (item.hasOwnProperty("cost") ? Number(item.cost) : 0);
         }, 0);
-      } else if (typeof o[key] === "object" && o[key] !== null) {
-        total += recursiveSum(o[key]);
+      } else if (typeof value === "object" && value !== null) {
+        return total + recursiveSum(value);
       }
-    }
-    return total;
+      return total;
+    }, 0);
   }
 
   return recursiveSum(obj);
-});
+};
 
-function calcLength(obj: any): number {
-  function recursiveCount(o: any): number {
-    let total = 0;
-    for (let key in o) {
-      if (Array.isArray(o[key])) {
-        total += o[key].length;
-      } else if (typeof o[key] === "object" && o[key] !== null) {
-        total += recursiveCount(o[key]);
+function calcSize(obj: GroupedVal): number {
+  function recursiveCount(o: GroupedVal): number {
+    return Object.values(o).reduce((total, value) => {
+      if (Array.isArray(value)) {
+        return total + value.length;
+      } else if (typeof value === "object" && value !== null) {
+        return total + recursiveCount(value);
       }
-    }
-    return total;
+      return total;
+    }, 0);
   }
 
   return recursiveCount(obj);
 }
 
-const calcTotalBudget = (items: IRecord["items"]) => computed(() => {
-  let total = 0;
-  for (let key in items) {
-    if (items.hasOwnProperty(key)) {
-      total += Number(items[key].budget);
-    }
-  }
-  return total;
-});
+const calcTotalBudget = (items: IRecord["items"]) => {
+  return Object.values(items).reduce((total, item) => total + Number(item.budget), 0);
+};
 
-const grouped = group(data.value);
+const grouped = groupByType(data.value);
 
-function calcCost(balances: IBalance[]) {
-  if (!balances.length) return 0;
-  let total = 0;
-  balances.forEach(i => (total += Number(i.cost)));
-  return total;
-}
+const calcCost = (balances: IBalance[]) => {
+  return balances.reduce((total, item) => total + Number(item.cost), 0);
+};
 
-const calcTotalSurplus = (items: IRecord["items"]) => computed(() => {
-  const budget = calcTotalBudget(items).value;
-  const outcome = calcTotalCost(grouped["支"] || []).value;
-  const income = calcTotalCost(grouped["收"] || []).value;
-  return budget - outcome + income;
-});
+const calcTotalSurplus = (items: IRecord["items"]) => {
+  return calcTotalBudget(items) - calcTotalCost(grouped["支"] || {}) + calcTotalCost(grouped["收"] || {});
+};
 
 const outcomeChart = ref(null);
 const incomeChart = ref(null);
 
 function formatData(data: any, max = 36) {
-  const result = [];
-  const entries = Object.entries(data).slice(0, max);
-
-  for (const [key, value] of entries) {
-    result.push({
-      value: calcCost(value as any),
-      name: key
-    });
-  }
-
-  return result;
+  return Object.entries(data).slice(0, max).map(([key, value]) => ({
+    value: calcCost(value as any), name: key
+  }));
 }
 
 onMounted(() => {
@@ -111,9 +88,9 @@ onMounted(() => {
     return;
   }
 
-  if (grouped["支"]) {
+  const createChart = (dom: any, data: any) => {
     useEcharts({
-      dom: outcomeChart.value,
+      dom,
       options: {
         legend: {
           orient: "vertical",
@@ -130,37 +107,19 @@ onMounted(() => {
             center: ["65%", "50%"],
             type: "pie",
             radius: "50%",
-            data: formatData(grouped["支"])
+            data: formatData(data)
           }
         ]
       }
     });
+  };
+
+  if (grouped["支"]) {
+    createChart(outcomeChart.value, grouped["支"]);
   }
 
   if (grouped["收"]) {
-    useEcharts({
-      dom: incomeChart.value,
-      options: {
-        legend: {
-          orient: "vertical",
-          left: "left",
-          textStyle: {
-            color: "#E5EAF3"
-          }
-        },
-        series: [
-          {
-            label: {
-              show: false
-            },
-            center: ["65%", "50%"],
-            type: "pie",
-            radius: "50%",
-            data: formatData(grouped["收"])
-          }
-        ]
-      }
-    });
+    createChart(incomeChart.value, grouped["收"]);
   }
 });
 </script>
@@ -177,14 +136,14 @@ onMounted(() => {
           <div class="i-tabler-coin mr-1"></div>
           预算 ({{ Object.keys(data.items).length }})
         </div>
-        <div class="text-gray text-0.8rem">{{ calcTotalBudget(data.items).value.toFixed(2) }}</div>
+        <div class="text-gray text-0.8rem">{{ calcTotalBudget(data.items).toFixed(2) }}</div>
       </div>
       <div class="flex-basis-33.33% max-w-33.33%">
         <div class="text-0.8rem f-c-s">
           <div class="i-tabler-minus mr-1"></div>
-          支出 ({{ calcLength(grouped["支"] || []) }})
+          支出 ({{ calcSize(grouped["支"] || {}) }})
         </div>
-        <div class="text-red text-0.8rem">{{ calcTotalCost(grouped["支"] || []).value.toFixed(2) }}</div>
+        <div class="text-red text-0.8rem">{{ calcTotalCost(grouped["支"] || {}).toFixed(2) }}</div>
       </div>
       <div class="flex-basis-33.33% max-w-33.33%">
         <div class="text-0.8rem f-c-s">
@@ -193,7 +152,7 @@ onMounted(() => {
         </div>
         <div class="text-gray text-0.8rem">
           {{
-            calcTotalSurplus(data.items).value.toFixed(2)
+            calcTotalSurplus(data.items).toFixed(2)
           }}
         </div>
       </div>
@@ -201,7 +160,7 @@ onMounted(() => {
     <template v-if="grouped['支']">
       <div class="mb-4">
         <div>支出</div>
-        <div class="text-0.8rem text-text-secondary">有 {{ Object.keys(grouped['支']).length }} 类支出</div>
+        <div class="text-0.8rem text-text-secondary">有 {{ Object.keys(grouped["支"]).length }} 类支出</div>
       </div>
       <div class="mb-2 f-c-b flex-wrap">
         <div v-for="(v, k) in grouped['支']" class="mb-2 flex-basis-50% max-w-50%">
@@ -216,7 +175,7 @@ onMounted(() => {
     <template v-if="grouped['收']">
       <div class="mb-4">
         <div>收入</div>
-        <div class="text-0.8rem text-text-secondary">有 {{ Object.keys(grouped['收']).length }} 类收入</div>
+        <div class="text-0.8rem text-text-secondary">有 {{ Object.keys(grouped["收"]).length }} 类收入</div>
       </div>
       <div class="mb-2 f-c-b flex-wrap">
         <div v-for="(v, k) in grouped['收']" class="mb-2 flex-basis-50% max-w-50%">

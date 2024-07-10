@@ -63,13 +63,18 @@ function openUpdateDialog() {
 }
 
 function confirmSubmit() {
-  Utils.Forms.formValidator(
+  const { data, currM, database, currY } = props;
+  const { formValidator } = Utils.Forms;
+  const { id } = formData.value;
+  const balanceItems = data.items[currM].balance;
+
+  formValidator(
     formInst.value,
     async () => {
-      const foundItem = props.data.items[props.currM].balance.findIndex(item => item.id === formData.value.id);
-      if (foundItem != -1) {
-        props.data.items[props.currM].balance[foundItem] = formData.value;
-        await Database.put(props.database, Const.DB_RECORD, Utils.Objects.raw(props.data), props.currY);
+      const foundItemIndex = balanceItems.findIndex(item => item.id === id);
+      if (foundItemIndex !== -1) {
+        balanceItems[foundItemIndex] = formData.value;
+        await Database.put(database, Const.DB_RECORD, Utils.Objects.raw(data), currY);
         isShowDialog.value = !isShowDialog.value;
       } else {
         ElMessage.error("未找到更新的收支项");

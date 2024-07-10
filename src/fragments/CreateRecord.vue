@@ -29,11 +29,7 @@ const emits = defineEmits(["onCreated"]);
 
 const config = await Database.get<IConfig>(props.database, Const.DB_CONFIG, Const.DB_KEY_CONFIG);
 const dialog = ref(false);
-const formData = reactive({
-  year: props.currY,
-  month: "1月",
-  budget: config.budget
-});
+const formData = reactive({ year: props.currY, month: "1月", budget: config.budget });
 const formInst = ref<FormInstance>();
 const formRule = ref<FormRules>();
 

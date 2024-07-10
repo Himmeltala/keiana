@@ -24,10 +24,7 @@ const props = defineProps({
 
 const dialog = ref(false);
 const formData = ref<IBalance>({
-  id: '',
-  cost: 0,
-  text: "",
-  type: "支",
+  id: "", cost: 0, text: "", type: "支",
   datetime: Utils.Dates.nowDate("YY-MM-DD", new Date(Number(props.currY), Number(props.currM) - 1))
 });
 const formInst = ref<FormInstance>();
@@ -45,13 +42,19 @@ const { items } = await Database.get<{ items: IComment[] }>(props.database, Cons
 const comments = ref<IComment[]>(items);
 
 function confirmSubmit() {
-  Utils.Forms.formValidator(
-    formInst.value,
+  const { data, currM, database, currY } = props;
+  const { formValidator } = Utils.Forms;
+  const { generateRandomHash, Objects } = Utils;
+  const { value: formInstValue } = formInst;
+  const { value: dialogValue } = dialog;
+
+  formValidator(
+    formInstValue,
     async () => {
-      formData.value.id = Utils.generateRandomHash()
-      props.data.items[props.currM].balance.push({ ...formData.value });
-      await Database.put(props.database, Const.DB_RECORD, Utils.Objects.raw(props.data), props.currY);
-      dialog.value = !dialog.value;
+      formData.value.id = generateRandomHash();
+      data.items[currM].balance.push({ ...formData.value });
+      await Database.put(database, Const.DB_RECORD, Objects.raw(data), currY);
+      dialog.value = !dialogValue;
     },
     () => {
       ElMessage.error("检查输入的值是否正确");
