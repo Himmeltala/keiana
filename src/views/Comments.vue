@@ -18,10 +18,6 @@ const formRule = ref<FormRules>({
   cost: [
     { required: true, validator: Utils.Forms.validateMoney, trigger: "change" },
     { required: true, validator: Utils.Forms.validateMoney, trigger: "blur" }
-  ],
-  type: [
-    { required: true, message: "输入收支类型！", trigger: "change" },
-    { required: true, message: "输入收支类型！", trigger: "blur" }
   ]
 });
 const formData = ref<IComment>({ text: "", cost: 100, type: "支" });
@@ -87,10 +83,6 @@ function confirmDelComments() {
   }
 }
 
-const filterType = (value: string, row: any) => {
-  return row.type === value;
-};
-
 function beforeCloseComments(scope: IComment) {
   editCommentsRow.value = scope;
   delCommentsDialog.value = !delCommentsDialog.value;
@@ -117,8 +109,8 @@ function beforeCreateRemark() {
 <template>
   <div>
     <div class="mb-4">
-      <div>我的备注</div>
-      <div class="text-0.8rem text-text-secondary">备注便于添加收入或者支出。红色支出；绿色收入。</div>
+      <div>快捷备注</div>
+      <div class="text-0.8rem text-text-secondary">快捷备注便于快速填写计划项。</div>
     </div>
     <div class="mb-4 f-c-e">
       <el-button plain round size="small" type="primary" @click="beforeCreateRemark">
@@ -129,36 +121,30 @@ function beforeCreateRemark() {
     </div>
     <div class="f-c-b flex-gap-1 flex-wrap">
       <el-table :data="data.items" border stripe>
-        <el-table-column fixed="left" label="备注" prop="value" width="95" />
-        <el-table-column
-          :filter-method="filterType"
-          :filters="[
-            { text: '支', value: '支' },
-            { text: '收', value: '收' }
-          ]"
-          label="类型"
-          prop="type" />
+        <el-table-column fixed="left" label="备注" prop="value" />
         <el-table-column label="金额" prop="cost" sortable />
-        <el-table-column fixed="right" label="操作" width="80">
+        <el-table-column fixed="right" label="操作" width="90">
           <template #default="scope">
-            <el-button
-              link
-              size="small"
-              type="danger"
-              @click.prevent="beforeCloseComments(scope.row)">
-              <template #icon>
-                <div class="i-tabler-trash"></div>
-              </template>
-            </el-button>
-            <el-button
-              link
-              size="small"
-              type="success"
-              @click.prevent="beforeUpdateComments(scope.row)">
-              <template #icon>
-                <div class="i-tabler-edit"></div>
-              </template>
-            </el-button>
+            <div class="f-c-b">
+              <el-button
+                link
+                size="small"
+                type="danger"
+                @click.prevent="beforeCloseComments(scope.row)">
+                <template #icon>
+                  <div class="i-tabler-trash"></div>
+                </template>
+              </el-button>
+              <el-button
+                link
+                size="small"
+                type="success"
+                @click.prevent="beforeUpdateComments(scope.row)">
+                <template #icon>
+                  <div class="i-tabler-edit"></div>
+                </template>
+              </el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -197,17 +183,10 @@ function beforeCreateRemark() {
           <el-input
             v-model="formData.text"
             :prefix-icon="ChatDotRound"
-            placeholder="请输入收支备注" />
+            placeholder="请输入备注" />
         </el-form-item>
         <el-form-item label="金额" prop="cost">
-          <el-input v-model="formData.cost" :prefix-icon="Coin" placeholder="请输入收支金额" />
-        </el-form-item>
-        <el-form-item label="类型" prop="type">
-          <el-radio-group v-model="formData.type">
-            <el-radio v-for="item in ['支', '收']" :value="item">
-              {{ item }}
-            </el-radio>
-          </el-radio-group>
+          <el-input v-model="formData.cost" :prefix-icon="Coin" placeholder="请输入金额" />
         </el-form-item>
       </el-form>
       <template #footer>

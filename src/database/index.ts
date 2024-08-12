@@ -21,7 +21,7 @@ export namespace Database {
         const dbConfig = db.createObjectStore(Const.DB_CONFIG, { keyPath: "id" });
 
         dbRecord.add({ id: "2024", items: { "1": { balance: [], surplus: 0, budget: 0 } } });
-        dbComments.add({ id: Const.DB_KEY_COMMENTS, items: [{ value: "生活费", cost: 1800, type: "支" }] });
+        dbComments.add({ id: Const.DB_KEY_COMMENTS, items: [{ value: "生活费", cost: 1800 }] });
         dbConfig.add({ id: Const.DB_KEY_CONFIG, Y: "2024", M: "1", budget: 5000, isChart: true, itemAsc: true });
       };
     });

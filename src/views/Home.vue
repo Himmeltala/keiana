@@ -34,14 +34,10 @@ function calcGrowthRate() {
   return result;
 }
 
-function calcOutAndInTotalCost(data: IBalance[]) {
+function calcTotalCost(data: IBalance[]) {
   let total = 0;
   data.forEach(item => {
-    if (item.type === "收") {
-      total -= Number(item.cost);
-    } else {
-      total += Number(item.cost);
-    }
+    total += Number(item.cost);
   });
   return total;
 }
@@ -49,7 +45,7 @@ function calcOutAndInTotalCost(data: IBalance[]) {
 function calcSurplus() {
   if (!data?.value.items[currM.value]) return 0;
 
-  const total = calcOutAndInTotalCost(data.value.items[currM.value].balance);
+  const total = calcTotalCost(data.value.items[currM.value].balance);
   data.value.items[currM.value].surplus = Number((data.value.items[currM.value].budget - total));
   Database.put(database, Const.DB_RECORD, Utils.Objects.raw(data.value), currY.value).then(() => {
     risingRate.value = calcGrowthRate();
@@ -58,19 +54,9 @@ function calcSurplus() {
   return data.value.items[currM.value].surplus;
 }
 
-function calcOutcomeTotalCost(data: IBalance[]) {
-  let total = 0;
-  data.forEach(item => {
-    if (item.type === "支") {
-      total += Number(item.cost);
-    }
-  });
-  return total;
-}
-
 function calcOutcome() {
   if (!data?.value.items[currM.value]) return 0;
-  return calcOutcomeTotalCost(data.value.items[currM.value].balance);
+  return calcTotalCost(data.value.items[currM.value].balance);
 }
 
 function onCurrYChange() {
@@ -169,7 +155,7 @@ function groupData(data: IRecord) {
         <div class="f-c-s text-text-regular text-0.8rem">
           <div class="f-c-c">
             <div class="i-tabler-coin text-text-secondary mr-1"></div>
-            <span class="text-text-secondary mr-1">预算</span>
+            <span class="text-text-secondary mr-1">本月预算</span>
             <span>
               {{ data?.items[currM]?.budget }}
             </span>
@@ -185,12 +171,12 @@ function groupData(data: IRecord) {
         <div class="f-c-e text-text-regular text-0.8rem">
           <div class="f-c-c">
             <div class="i-tabler-minus text-text-secondary mr-1"></div>
-            <span class="text-text-secondary mr-1">支出</span>
+            <span class="text-text-secondary mr-1">已计划</span>
             <span>
               {{ calcOutcome().toFixed(2) }}
             </span>
           </div>
-          <span class="text-text-secondary mr-1">，增长</span>
+          <span class="text-text-secondary mr-1">，较上月</span>
           <div v-show="risingRate > 0" class="f-c-c text-red">
             {{ risingRate.toFixed(2) }}%
             <div class="i-tabler-caret-up"></div>
@@ -211,12 +197,7 @@ function groupData(data: IRecord) {
             trigger="click">
             <div class="w-100% f-c-b">
               <div class="f-c-s">
-                <el-tag :type="value.type == '支' ? 'danger' : 'success'" class="mr-4" size="small">
-                  {{ value.type }}
-                </el-tag>
-                <div>
-                  {{ value.text }}
-                </div>
+                {{ value.text }}
               </div>
               <div class="text-text-secondary">{{ value.cost }}</div>
             </div>

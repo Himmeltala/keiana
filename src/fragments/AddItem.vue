@@ -24,18 +24,18 @@ const props = defineProps({
 
 const dialog = ref(false);
 const formData = ref<IBalance>({
-  id: "", cost: 0, text: "", type: "支",
+  id: "", cost: 0, text: "",
   datetime: Utils.Dates.nowDate("YY-MM-DD", new Date(Number(props.currY), Number(props.currM) - 1))
 });
 const formInst = ref<FormInstance>();
 const formRule = ref<FormRules>({
   cost: [{ validator: Utils.Forms.validateMoney, trigger: "change" }],
   text: [
-    { required: true, message: "请输入收支备注", trigger: "change" },
+    { required: true, message: "请输入备注", trigger: "change" },
     { min: 1, max: 50, message: "长度在1~50个字符之间", trigger: "change" }
   ],
   datetime: [
-    { required: true, message: "请输入日期时间", trigger: "change" }
+    { required: true, message: "请输入日期", trigger: "change" }
   ]
 });
 const { items } = await Database.get<{ items: IComment[] }>(props.database, Const.DB_COMMENTS, Const.DB_KEY_COMMENTS);
@@ -81,11 +81,11 @@ function afterOpenedDialog() {
 
 <template>
   <div>
-    <el-button plain round size="small" type="success" @click="dialog = !dialog">添加收支</el-button>
+    <el-button plain round size="small" type="success" @click="dialog = !dialog">添加计划</el-button>
     <el-dialog
       v-model="dialog"
       append-to-body
-      title="添加收支"
+      title="添加一项计划"
       width="90%"
       @opened="afterOpenedDialog">
       <el-form
@@ -101,30 +101,25 @@ function afterOpenedDialog() {
             v-model="formData.text"
             :fetch-suggestions="findFromComments"
             :prefix-icon="ChatDotRound"
-            placeholder="请输入收支备注"
+            placeholder="请输入备注"
             style="width: 100%"
             @select="onAutocompleteSelected" />
         </el-form-item>
-        <el-form-item label="花费" prop="cost">
+        <el-form-item label="金额" prop="cost">
           <el-input
             v-model="formData.cost"
             :prefix-icon="Coin"
-            placeholder="请输入收支金额"
+            placeholder="请输入金额"
             type="number" />
         </el-form-item>
-        <el-form-item label="日期时间" prop="datetime">
+        <el-form-item label="日期" prop="datetime">
           <el-date-picker
             v-model="formData.datetime"
             :disabled-date="(time:Date) => disabledDate(time, currY, currM)"
-            placeholder="请输入日期时间"
+            placeholder="请输入日期"
             style="width: 100%"
             type="date"
           />
-        </el-form-item>
-        <el-form-item label="类型" prop="type">
-          <el-radio-group v-model="formData.type">
-            <el-radio v-for="item in ['支', '收']" :label="item" :value="item"></el-radio>
-          </el-radio-group>
         </el-form-item>
         <el-form-item class="mt-10">
           <div class="f-c-c w-100%">

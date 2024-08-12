@@ -77,7 +77,7 @@ function confirmSubmit() {
         await Database.put(database, Const.DB_RECORD, Utils.Objects.raw(data), currY);
         isShowDialog.value = !isShowDialog.value;
       } else {
-        ElMessage.error("未找到更新的收支项");
+        ElMessage.error("未找到更新的计划");
       }
     },
     () => {
@@ -89,8 +89,8 @@ function confirmSubmit() {
 
 <template>
   <div>
-    <el-button size="small" text type="primary" @click="openUpdateDialog">编辑收支</el-button>
-    <el-dialog v-model="isShowDialog" append-to-body title="修改支出项" width="90%">
+    <el-button size="small" text type="primary" @click="openUpdateDialog">编辑计划</el-button>
+    <el-dialog v-model="isShowDialog" append-to-body title="修改计划" width="90%">
       <el-form
         ref="formInst"
         :model="formData"
@@ -104,28 +104,21 @@ function confirmSubmit() {
             v-model="formData.text"
             :fetch-suggestions="findFromComments"
             :prefix-icon="ChatDotRound"
-            placeholder="请输入收支备注"
+            placeholder="请输入备注"
             style="width: 100%"
             @select="onAutocompleteSelected" />
         </el-form-item>
-        <el-form-item label="花费" prop="cost">
-          <el-input v-model.number="formData.cost" :prefix-icon="Coin" placeholder="请输入收支金额" type="number" />
+        <el-form-item label="金额" prop="cost">
+          <el-input v-model.number="formData.cost" :prefix-icon="Coin" placeholder="请输入金额" type="number" />
         </el-form-item>
-        <el-form-item label="日期时间" prop="datetime">
+        <el-form-item label="日期" prop="datetime">
           <el-date-picker
             v-model="formData.datetime"
             :disabled-date="(time:Date) => disabledDate(time, currY, currM)"
-            placeholder="请输入日期时间"
+            placeholder="请输入日期"
             style="width: 100%"
             type="date"
           />
-        </el-form-item>
-        <el-form-item label="类型" prop="type">
-          <el-radio-group v-model="formData.type">
-            <el-radio v-for="item in ['支', '收']" :value="item">
-              {{ item }}
-            </el-radio>
-          </el-radio-group>
         </el-form-item>
         <el-form-item class="mt-10">
           <div class="f-c-c w-100%">

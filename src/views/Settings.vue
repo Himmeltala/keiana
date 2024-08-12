@@ -49,7 +49,7 @@ async function delDatabase() {
 
 const formData = reactive<IConfig>({ ...config });
 
-watch(formData, (value, oldValue, onCleanup) => {
+watch(formData, (value) => {
   Database.put(database, Const.DB_CONFIG, Utils.Objects.raw(value), Const.DB_KEY_CONFIG);
 });
 </script>
@@ -85,13 +85,13 @@ watch(formData, (value, oldValue, onCleanup) => {
       </div>
       <div>
         <el-form :model="formData" class="p-4" label-position="left" label-width="auto">
-          <el-form-item label="总预算">
+          <el-form-item label="预算">
             <el-input v-model="formData.budget" size="small" type="number" />
           </el-form-item>
           <el-form-item :label="formData.isChart ? '开启图表' : '关闭图表'">
             <el-switch v-model="formData.isChart" />
           </el-form-item>
-          <el-form-item :label="formData.itemAsc ? '收支升序' : '收支降序'">
+          <el-form-item :label="formData.itemAsc ? '计划项升序' : '计划项降序'">
             <el-switch v-model="formData.itemAsc" />
           </el-form-item>
         </el-form>

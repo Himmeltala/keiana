@@ -39,7 +39,7 @@ async function confirmSubmit() {
     await Database.put(database, Const.DB_RECORD, Utils.Objects.raw(data), currY);
     isShowDialog.value = !isShowDialog.value;
   } else {
-    ElMessage.error("未找到更新的收支项");
+    ElMessage.error("未找到删除的计划");
   }
 }
 </script>
@@ -47,9 +47,9 @@ async function confirmSubmit() {
 <template>
   <div>
     <el-button size="small" text type="danger" @click="isShowDialog = !isShowDialog">
-      删除收支
+      删除计划
     </el-button>
-    <el-dialog v-model="isShowDialog" append-to-body title="删除收支提示" width="90%">
+    <el-dialog v-model="isShowDialog" append-to-body title="删除计划" width="90%">
       <el-form ref="formInst" hide-required-asterisk label-position="left" label-width="auto" status-icon>
         <el-form-item label="备注" prop="text">
           {{ data.items[currM].balance[index].text }}
@@ -57,19 +57,14 @@ async function confirmSubmit() {
         <el-form-item label="金额" prop="cost">
           {{ data.items[currM].balance[index].cost }}
         </el-form-item>
-        <el-form-item label="日期时间" prop="datetime">
+        <el-form-item label="日期" prop="datetime">
           <el-date-picker
             v-model="data.items[currM].balance[index].datetime"
             disabled
-            placeholder="请输入日期时间"
+            placeholder="请输入日期"
             style="width: 100%"
             type="date"
           />
-        </el-form-item>
-        <el-form-item label="类型" prop="type">
-          <el-radio-group v-model="data.items[currM].balance[index].type">
-            <el-radio v-for="i in ['支', '收']" :label="i" :value="i" disabled></el-radio>
-          </el-radio-group>
         </el-form-item>
         <el-form-item class="mt-10">
           <div class="f-c-c w-100%">
