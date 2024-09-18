@@ -86,7 +86,7 @@ watch(formData, (value) => {
       <div>
         <el-form :model="formData" class="p-4" label-position="left" label-width="auto">
           <el-form-item label="预算">
-            <el-input v-model="formData.budget" size="small" type="number" />
+            <el-input v-model.number="formData.budget" size="small" type="number" />
           </el-form-item>
           <el-form-item :label="formData.isChart ? '开启图表' : '关闭图表'">
             <el-switch v-model="formData.isChart" />

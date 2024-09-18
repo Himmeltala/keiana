@@ -69,7 +69,7 @@ function confirmSubmit() {
         label-position="left"
         status-icon>
         <el-form-item label="预算" prop="budget">
-          <el-input v-model="formData.budget" :prefix-icon="Coin" type="number" />
+          <el-input v-model.number="formData.budget" :prefix-icon="Coin" type="number" />
         </el-form-item>
         <el-form-item class="mt-10">
           <div class="f-c-c w-100%">

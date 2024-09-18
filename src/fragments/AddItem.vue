@@ -107,7 +107,7 @@ function afterOpenedDialog() {
         </el-form-item>
         <el-form-item label="金额" prop="cost">
           <el-input
-            v-model="formData.cost"
+            v-model.number="formData.cost"
             :prefix-icon="Coin"
             placeholder="请输入金额"
             type="number" />

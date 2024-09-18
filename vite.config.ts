@@ -7,7 +7,7 @@ import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import UnoCSS from "unocss/vite";
 
 export default defineConfig({
-  base: "/moneymap/dist",
+  base: "/keiana/dist",
   plugins: [
     vue(),
     vueJsx(),

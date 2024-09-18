@@ -123,7 +123,7 @@ function beforeCreateRemark() {
 }
 
 const totalBudget = computed(() => {
-  return data.value.items.reduce((acc, item) => acc + item.cost, 0);
+  return data.value.items.reduce((acc, item) => acc + Number(item.cost), 0);
 });
 
 const budgetRemaining = computed(() => {
@@ -137,7 +137,7 @@ const budgetRemaining = computed(() => {
       <div>快捷备注</div>
       <div class="text-0.8rem text-text-secondary">快捷备注便于快速填写计划项。</div>
       <div class="mt-2 text-0.9rem text-text-secondary">
-        总预算：<span class="text-green">{{ config.budget }}</span>，已计划：<span class="text-text-primary">{{ totalBudget }}</span>，剩余：<span class="text-red">{{ budgetRemaining }}</span>
+        总预算：<span class="text-green">{{ config.budget.toFixed(2) }}</span>，已计划：<span class="text-text-primary">{{ totalBudget.toFixed(2) }}</span>，剩余：<span class="text-red">{{ budgetRemaining.toFixed(2) }}</span>
       </div>
     </div>
     <div class="mb-4 f-c-e">
@@ -208,10 +208,10 @@ const budgetRemaining = computed(() => {
         label-position="left"
         status-icon>
         <el-form-item label="备注" prop="text">
-          <el-input v-model="formData.text" :prefix-icon="ChatDotRound" placeholder="请输入备注" />
+          <el-input v-model.trim="formData.text" :prefix-icon="ChatDotRound" placeholder="请输入备注" />
         </el-form-item>
         <el-form-item label="金额" prop="cost">
-          <el-input v-model="formData.cost" :prefix-icon="Coin" placeholder="请输入金额" />
+          <el-input v-model.number="formData.cost" type="number" :prefix-icon="Coin" placeholder="请输入金额" />
         </el-form-item>
       </el-form>
       <template #footer>
