@@ -3,7 +3,10 @@ import { ChatDotRound, Coin } from "@element-plus/icons-vue";
 import type { FormInstance, FormRules } from "element-plus";
 
 const database = await Database.create();
-const data = ref(await Database.get<{ items: IComment[] }>(database, Const.DB_COMMENTS, Const.DB_KEY_COMMENTS));
+const data = ref(
+  await Database.get<{ items: IComment[] }>(database, Const.DB_COMMENTS, Const.DB_KEY_COMMENTS)
+);
+const config = ref(await Database.get<IConfig>(database, Const.DB_CONFIG, Const.DB_KEY_CONFIG));
 const editCommentsRow = ref<IComment>();
 const delCommentsDialog = ref(false);
 const commentsEditType = ref<"新增" | "更新">("新增");
@@ -34,7 +37,12 @@ function addComments() {
           cost: formData.value.cost,
           type: formData.value.type
         });
-        Database.put(database, Const.DB_COMMENTS, Utils.Objects.raw(data.value), Const.DB_KEY_COMMENTS);
+        Database.put(
+          database,
+          Const.DB_COMMENTS,
+          Utils.Objects.raw(data.value),
+          Const.DB_KEY_COMMENTS
+        );
         commentsEditDialog.value = !commentsEditDialog.value;
       } else {
         ElMessage.error("重复添加！");
@@ -47,7 +55,9 @@ function addComments() {
 }
 
 function updateComments() {
-  const foundIndex = data.value.items?.findIndex(item => item.value === editCommentsRow.value.value);
+  const foundIndex = data.value.items?.findIndex(
+    item => item.value === editCommentsRow.value.value
+  );
   if (foundIndex >= 0) {
     Utils.Forms.formValidator(
       formInst.value,
@@ -57,7 +67,12 @@ function updateComments() {
           cost: formData.value.cost,
           type: formData.value.type
         };
-        Database.put(database, Const.DB_COMMENTS, Utils.Objects.raw(data.value), Const.DB_KEY_COMMENTS);
+        Database.put(
+          database,
+          Const.DB_COMMENTS,
+          Utils.Objects.raw(data.value),
+          Const.DB_KEY_COMMENTS
+        );
         commentsEditDialog.value = !commentsEditDialog.value;
         formData.value.value = "";
         formData.value.cost = 100;
@@ -73,7 +88,9 @@ function updateComments() {
 }
 
 function confirmDelComments() {
-  const foundIndex = data.value.items?.findIndex(item => item.value === editCommentsRow.value.value);
+  const foundIndex = data.value.items?.findIndex(
+    item => item.value === editCommentsRow.value.value
+  );
   if (foundIndex >= 0) {
     data.value.items.splice(foundIndex, 1);
     Database.put(database, Const.DB_COMMENTS, Utils.Objects.raw(data.value), Const.DB_KEY_COMMENTS);
@@ -104,6 +121,14 @@ function beforeCreateRemark() {
   formData.value.type = "支";
   commentsEditDialog.value = !commentsEditDialog.value;
 }
+
+const totalBudget = computed(() => {
+  return data.value.items.reduce((acc, item) => acc + item.cost, 0);
+});
+
+const budgetRemaining = computed(() => {
+  return config.value.budget - totalBudget.value;
+});
 </script>
 
 <template>
@@ -111,6 +136,9 @@ function beforeCreateRemark() {
     <div class="mb-4">
       <div>快捷备注</div>
       <div class="text-0.8rem text-text-secondary">快捷备注便于快速填写计划项。</div>
+      <div class="mt-2 text-0.9rem text-text-secondary">
+        总预算：<span class="text-green">{{ config.budget }}</span>，已计划：<span class="text-text-primary">{{ totalBudget }}</span>，剩余：<span class="text-red">{{ budgetRemaining }}</span>
+      </div>
     </div>
     <div class="mb-4 f-c-e">
       <el-button plain round size="small" type="primary" @click="beforeCreateRemark">
@@ -180,10 +208,7 @@ function beforeCreateRemark() {
         label-position="left"
         status-icon>
         <el-form-item label="备注" prop="text">
-          <el-input
-            v-model="formData.text"
-            :prefix-icon="ChatDotRound"
-            placeholder="请输入备注" />
+          <el-input v-model="formData.text" :prefix-icon="ChatDotRound" placeholder="请输入备注" />
         </el-form-item>
         <el-form-item label="金额" prop="cost">
           <el-input v-model="formData.cost" :prefix-icon="Coin" placeholder="请输入金额" />
